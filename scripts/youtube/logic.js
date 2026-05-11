@@ -3,7 +3,7 @@
 
     if (window !== window.top) return; // Don't run in iframes
 
-    console.log("This is working");
+    console.log("This is still working");
 
     // --- CSS (inject once) ---
     if (!document.getElementById('yt-custom-styles')) {
