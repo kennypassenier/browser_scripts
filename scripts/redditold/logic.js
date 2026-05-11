@@ -89,6 +89,7 @@ const main = () => {
 }
 
 const __style = document.createElement('style');
+__style.id = 'redditold-custom-styles';
 __style.textContent = `
     .fixedSite{
 	color: #DE781F !important;
@@ -140,9 +141,11 @@ __style.textContent = `
         padding-left: 25px;
     }
     /*Increase the size of the collapse comment bars*/
-    .res-commentQuickCollapse-toggleCommentsOnClickLeftEdge .commentarea .comment > .entry > .tagline > .expand{
-        padding: 10px;
-        /*margin-top: 40px;*/
+    .commentarea .comment > .entry > .tagline > .expand{
+        padding: 10px !important;
+        display: inline-block !important;
+        min-width: 2em !important;
+        text-align: center !important;
     }
     /*Remove the margin whenever the item is collapsed so we can see the bar again*/
     /*.res-commentQuickCollapse-toggleCommentsOnClickLeftEdge .commentarea .comment > .entry > .tagline > .expand[collapse-reason="commentHidePersistor"]{*/
@@ -258,5 +261,11 @@ __style.textContent = `
 `;
 document.head.appendChild(__style);
 console.log("[redditold] style injected:", document.head.contains(__style));
+setTimeout(() => {
+    const bg = window.getComputedStyle(document.body).backgroundColor;
+    const styleEl = document.getElementById('redditold-custom-styles');
+    console.log("[redditold] body bg (should be black):", bg);
+    console.log("[redditold] style still in DOM after 2s:", !!styleEl);
+}, 2000);
 
 main();
