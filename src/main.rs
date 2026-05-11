@@ -62,11 +62,50 @@ fn create_project(config: &Config, root: &PathBuf) {
         .unwrap();
 
     // 2. Match Pattern
-    let match_pattern: String = Input::with_theme(&theme)
-        .with_prompt("Enter Match Pattern")
-        .with_initial_text("*://*.")
+    // 2a. Protocol
+    let protocol_idx = Select::with_theme(&theme)
+        .with_prompt("Protocol")
+        .items(&["* (both http and https)", "https only", "http only"])
+        .default(0)
+        .interact()
+        .unwrap();
+    let protocol = match protocol_idx {
+        1 => "https",
+        2 => "http",
+        _ => "*",
+    };
+
+    // 2b. Domain
+    let wildcard_subdomain = Select::with_theme(&theme)
+        .with_prompt("Subdomains")
+        .items(&["*. (wildcard all subdomains)", "exact domain only"])
+        .default(0)
+        .interact()
+        .unwrap() == 0;
+
+    let domain: String = Input::with_theme(&theme)
+        .with_prompt("Domain (e.g. youtube.com)")
         .interact_text()
         .unwrap();
+
+    // 2c. Path
+    let wildcard_path = Select::with_theme(&theme)
+        .with_prompt("Path")
+        .items(&["/* (all pages)", "/ (root only)", "custom path"])
+        .default(0)
+        .interact()
+        .unwrap();
+    let path = match wildcard_path {
+        1 => "/".to_string(),
+        2 => Input::with_theme(&theme)
+            .with_prompt("Enter path (e.g. /comments/*)")
+            .interact_text()
+            .unwrap(),
+        _ => "/*".to_string(),
+    };
+
+    let subdomain_prefix = if wildcard_subdomain { "*." } else { "" };
+    let match_pattern = format!("{protocol}://{subdomain_prefix}{domain}{path}");
 
     // 3. Exclude Patterns
     let mut excludes = Vec::new();
