@@ -63,13 +63,18 @@ cargo build --release
 
 ## Developer Workflow
 
-1.  **Initialization**: Use the manager to create a new project.
-2.  **Linking**: Copy the content of the generated `loader.user.js` and paste it into a new script in Tampermonkey.
-3.  **Coding**: Edit your `logic.js` file using your preferred local IDE.
-4.  **Deployment**: Run `Update All` in the manager. Refresh the target website to trigger the update.
+1.  **Initialization**: Use the manager to create a new website script.
+2.  **Push to GitHub**: Run `Update All` to commit and push the generated files to your repository.
+3.  **Install via Raw Link**:
+    *   Navigate to your repository on GitHub.
+    *   Open the `loader.user.js` file for your script (under `scripts/<name>/`).
+    *   Click the **Raw** button.
+    *   Tampermonkey will detect the UserScript header and prompt you to **Install**.
+4.  **Coding**: Edit your `logic.js` locally using your preferred IDE.
+5.  **Deployment**: Run `Update All` in the manager. Tampermonkey will see the version bump on GitHub and update the script in your browser automatically.
 
 ## Troubleshooting
 
 - **Authentication Errors**: If you get 404 or 403 errors, your GitHub Token (GAT) has likely expired. Update your `.env` with a fresh token.
-- **Cache Refresh**: If Tampermonkey doesn't load the latest version, verify the version number in the browser editor. Use the manager's `Update All` command to force a new timestamp.
+- **Immediate Update**: If you don't want to wait for Tampermonkey's daily check, go to the Tampermonkey Dashboard -> Utilities -> **Check for userscript updates**.
 - **Wildcards**: For match patterns, remember that `*` matches everything in that segment. Use `*://domain.com/*` for general coverage.
