@@ -5,6 +5,8 @@
 // @description  {{DESCRIPTION}}
 // @author       Kenny
 // @match        {{MATCH}}
+// @updateURL    https://raw.githubusercontent.com/{{GH_USER}}/{{GH_REPO}}/refs/heads/main/scripts/{{PATH}}/loader.user.js
+// @downloadURL  https://raw.githubusercontent.com/{{GH_USER}}/{{GH_REPO}}/refs/heads/main/scripts/{{PATH}}/loader.user.js
 {{EXCLUDES}}
 // @run-at       {{RUN_AT}}
 {{GRANTS}}
