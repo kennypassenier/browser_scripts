@@ -1,6 +1,8 @@
 (function () {
     'use strict';
 
+    console.log("This is working");
+
     // --- CSS ---
     const style = document.createElement("style");
     style.textContent = `
