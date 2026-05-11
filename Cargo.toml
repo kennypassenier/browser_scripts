@@ -1,0 +1,10 @@
+[package]
+name = "monkey-manager"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dotenvy = "0.15"
+dialoguer = "0.11"
+chrono = "0.4"
+walkdir = "2.4"

@@ -1,0 +1,12 @@
+// ==UserScript==
+// @name         {{NAME}} Loader
+// @namespace    Custom.Automation
+// @version      {{VERSION}}
+// @description  {{DESCRIPTION}}
+// @author       Kenny
+// @match        {{MATCH}}
+{{EXCLUDES}}
+// @run-at       {{RUN_AT}}
+{{GRANTS}}
+// @require      https://raw.githubusercontent.com/{{GH_USER}}/{{GH_REPO}}/main/{{PATH}}/{{FILENAME}}?token={{GAT}}
+// ==/UserScript==
