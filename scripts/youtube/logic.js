@@ -1,16 +1,21 @@
 (function () {
     'use strict';
 
+    if (window !== window.top) return; // Don't run in iframes
+
     console.log("This is working");
 
-    // --- CSS ---
-    const style = document.createElement("style");
-    style.textContent = `
-        ytd-reel-shelf-renderer {
-            display: none;
-        }
-    `;
-    document.head.appendChild(style);
+    // --- CSS (inject once) ---
+    if (!document.getElementById('yt-custom-styles')) {
+        const style = document.createElement("style");
+        style.id = 'yt-custom-styles';
+        style.textContent = `
+            ytd-reel-shelf-renderer {
+                display: none;
+            }
+        `;
+        document.head.appendChild(style);
+    }
 
     // --- Helpers ---
 
