@@ -1,10 +1,11 @@
 // ==UserScript==
-// @name         youtube Loader
+// @name         youtube
 // @namespace    Custom.Automation
-// @version      1778522110
+// @version      1778522340
 // @description
 // @author       Kenny
-// @match        *://*.youtube.com/*// @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/loader.user.js
+// @match        *://*.youtube.com/*
+// @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/loader.user.js
 // @run-at       document-idle
 // @grant        none
