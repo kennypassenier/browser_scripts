@@ -125,7 +125,7 @@ GM_addStyle(`
         font-family: Verdana;
     }
     #NREMailCount:hover{
-        display: "";
+        display: block;
     }
     .linkflairlabel {
         font-size: 2vh;
