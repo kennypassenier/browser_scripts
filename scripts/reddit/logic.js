@@ -308,6 +308,7 @@ const changeNavigationButtons = () => {
         const prev = document.querySelector(".prev-button");
         // Clear the parent of any text and items
         let parent = document.querySelector(".nextprev");
+        if (!parent) return;
         parent.textContent = "";
         if (prev) {
             // Change link text
