@@ -37,7 +37,7 @@ fn main() {
     println!("       MONKEY MANAGER         ");
     println!("------------------------------");
 
-    let selections = &["New Project", "Update All", "Exit"];
+    let selections = &["New Website", "Update All", "Exit"];
     let selection = Select::with_theme(&ColorfulTheme::default())
         .with_prompt("Action")
         .items(selections)
@@ -57,17 +57,11 @@ fn create_project(config: &Config, root: &PathBuf) {
 
     // 1. Name
     let name: String = Input::with_theme(&theme)
-        .with_prompt("Project Name (slug-style, e.g., reddit-cleaner)")
+        .with_prompt("Website (slug-style, e.g., reddit)")
         .interact_text()
         .unwrap();
 
-    // 2. Description
-    let description: String = Input::with_theme(&theme)
-        .with_prompt("Description (What does this script do?)")
-        .interact_text()
-        .unwrap();
-
-    // 3. Match Pattern
+    // 2. Match Pattern
     println!("\n--- MATCH PATTERN HELP ---");
     println!("Wildcards (*): Matches any character sequence.");
     println!("Example: *://*.reddit.com/* (Matches all Reddit pages on HTTP/HTTPS)");
@@ -76,7 +70,7 @@ fn create_project(config: &Config, root: &PathBuf) {
         .interact_text()
         .unwrap();
 
-    // 4. Exclude Patterns
+    // 3. Exclude Patterns
     let mut excludes = Vec::new();
     println!("\n--- EXCLUSION HELP ---");
     println!("Allows you to block specific sub-pages (e.g., *://old.reddit.com/comments/*)");
@@ -92,7 +86,7 @@ fn create_project(config: &Config, root: &PathBuf) {
         excludes.push(format!("// @exclude-match {}", exclude));
     }
 
-    // 5. Run-At
+    // 4. Run-At
     println!("\n--- RUN-AT HELP ---");
     println!("- document-start: ASAP (before DOM exists)");
     println!("- document-body: When body is available");
@@ -112,7 +106,7 @@ fn create_project(config: &Config, root: &PathBuf) {
         .unwrap();
     let run_at = run_at_options[run_at_idx];
 
-    // 6. Grants
+    // 5. Grants
     println!("\n--- GRANT HELP ---");
     println!(
         "Grants allow access to Tampermonkey APIs. Use 'none' for maximum security if not needed."
@@ -143,14 +137,14 @@ fn create_project(config: &Config, root: &PathBuf) {
 
     // Processing files
     let timestamp = Utc::now().timestamp().to_string();
-    let project_dir = root.join(&name);
+    let project_dir = root.join("scripts").join(&name);
     fs::create_dir_all(&project_dir).expect("Failed to create project directory");
 
     let template_content = fs::read_to_string(&config.template_file).expect("Template read failed");
 
     let processed_header = template_content
         .replace("{{NAME}}", &name)
-        .replace("{{DESCRIPTION}}", &description)
+        .replace("{{DESCRIPTION}}", "")
         .replace("{{MATCH}}", &match_pattern)
         .replace("{{EXCLUDES}}", &excludes.join("\n"))
         .replace("{{VERSION}}", &timestamp)
@@ -174,7 +168,7 @@ fn create_project(config: &Config, root: &PathBuf) {
         fs::write(logic_path, default_logic).expect("Failed to write logic file");
     }
 
-    println!("\nSuccess: Project '{}' setup complete.", name);
+    println!("\nSuccess: Website '{}' setup complete.", name);
 }
 
 fn update_all(root: &PathBuf) {
