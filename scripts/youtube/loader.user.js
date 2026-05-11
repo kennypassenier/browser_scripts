@@ -8,5 +8,5 @@
 
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/main/youtube/logic.js?token=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
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/logic.js?token=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
 // ==/UserScript==
