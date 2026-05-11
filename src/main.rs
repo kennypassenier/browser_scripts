@@ -81,7 +81,8 @@ fn create_project(config: &Config, root: &PathBuf) {
         .items(&["*. (wildcard all subdomains)", "exact domain only"])
         .default(0)
         .interact()
-        .unwrap() == 0;
+        .unwrap()
+        == 0;
 
     let domain: String = Input::with_theme(&theme)
         .with_prompt("Domain (e.g. youtube.com)")

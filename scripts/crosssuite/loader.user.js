@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         crosssuite
 // @namespace    Custom.Automation
-// @version      1778540063
+// @version      1778540239
 // @description  
 // @author       Kenny
 // @match        *://agenda.crossuite.com
