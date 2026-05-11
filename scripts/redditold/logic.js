@@ -1,4 +1,5 @@
 'use strict';
+if (location.host !== 'old.reddit.com' || /\/comments\//.test(location.pathname)) return;
 // Functions
 const timeout = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));

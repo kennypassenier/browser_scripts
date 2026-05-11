@@ -1,4 +1,5 @@
 'use strict';
+if (location.host === 'old.reddit.com' || location.host.startsWith('www.') || /\/comments\//.test(location.pathname)) return;
 // Time to live is one day in milliseconds
 const localStorageTimeToLive = 1000 * 60 * 60 * 72;
 const storage = window.localStorage;
