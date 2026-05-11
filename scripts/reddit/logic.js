@@ -27,6 +27,56 @@ const detectRickroll = () => {
     }
 }
 
+function injectOldRedditStyles() {
+    if (document.getElementById('redditold-custom-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'redditold-custom-styles';
+    style.textContent = `
+    .fixedSite{ color: #DE781F !important; }
+    .trashSite{ color: #253529 !important; }
+    .paywall{ color: #1F85DE !important; }
+    .strikeThrough{ text-decoration: line-through; color: white !important; }
+    .animateLink{ animation-duration: 3s; animation-name: fadeIn; animation-timing-function: ease; }
+    #NREMailCount[title="new mail!"]{
+        display: flex; width: 100%; min-width: 2rem;
+        justify-content: center; align-content: center; align-items: center;
+        color: black; font-size: 1.4rem; min-height: 1.5rem; font-family: Verdana;
+    }
+    #NREMailCount:hover{ display: block; }
+    .linkflairlabel{ font-size: 2vh; }
+    .commentarea .midcol{ float: right; }
+    .entry{ padding-left: 25px; }
+    .commentarea .comment > .entry > .tagline > .expand{
+        padding: 10px !important; display: inline-block !important;
+        min-width: 2em !important; text-align: center !important;
+    }
+    div.res-expando-box{ background-color: transparent !important; }
+    body, #sr-header-area, #RESShortcutsEditContainer > *, #RESShortcutsEditContainer,
+    .debuginfo, .content, .res-expando-box, .top-matter{
+        background-color: black !important; color: white !important;
+    }
+    p.debuginfo, .subbarlink, #srDropdownContainer a{ color: white !important; }
+    div.nav-buttons{
+        display: flex; align-items: center; justify-content: center;
+        height: 10vh; width: 100vw; margin-top: 20vh; margin-bottom: 20vh;
+    }
+    span.next-button, span.prev-button{ margin: 2vh !important; padding: 2vh; }
+    span.next-button a, span.prev-button a{
+        height: 100%; font-size: 8vh; background: black !important;
+        color: white !important; padding: 0.2vw;
+    }
+    span.next-button a:hover, span.prev-button a:hover{ background: white; color: black; }
+    @keyframes fadeIn { from { color: black; opacity: 0; } to { opacity: 1; } }
+    .happening-now-wrap, span.score, .userattrs, span.score-hidden, .awardings-bar,
+    .listing-chooser, .give-gold-button, .share, .save-button, .saveComments,
+    .crosspost-button, .report-button, .footer-parent, .presence_circle,
+    .infobar-toaster-container, #notifications, #chat-v2, .badge-count{
+        display: none !important;
+    }
+    `;
+    document.head.appendChild(style);
+}
+
 // ─── URL routing ─────────────────────────────────────────────────────────────
 
 const host = location.host;
@@ -38,6 +88,7 @@ const isWww = host.startsWith('www.');
 if (isWww) {
     location.replace(location.protocol + '//old.reddit.com' + path + location.search);
 } else if (isOldReddit && isComments) {
+    injectOldRedditStyles();
     runOldRedditComments();
 } else if (isOldReddit) {
     runOldRedditFrontpage();
@@ -109,57 +160,10 @@ function runOldRedditFrontpage() {
         header.appendChild(generateSeperator());
         header.appendChild(sidebarLink);
     }
-    const injectStyles = () => {
-        const style = document.createElement('style');
-        style.id = 'redditold-custom-styles';
-        style.textContent = `
-    .fixedSite{ color: #DE781F !important; }
-    .trashSite{ color: #253529 !important; }
-    .paywall{ color: #1F85DE !important; }
-    .strikeThrough{ text-decoration: line-through; color: white !important; }
-    .animateLink{ animation-duration: 3s; animation-name: fadeIn; animation-timing-function: ease; }
-    #NREMailCount[title="new mail!"]{
-        display: flex; width: 100%; min-width: 2rem;
-        justify-content: center; align-content: center; align-items: center;
-        color: black; font-size: 1.4rem; min-height: 1.5rem; font-family: Verdana;
-    }
-    #NREMailCount:hover{ display: block; }
-    .linkflairlabel{ font-size: 2vh; }
-    .commentarea .midcol{ float: right; }
-    .entry{ padding-left: 25px; }
-    .commentarea .comment > .entry > .tagline > .expand{
-        padding: 10px !important; display: inline-block !important;
-        min-width: 2em !important; text-align: center !important;
-    }
-    div.res-expando-box{ background-color: transparent !important; }
-    body, #sr-header-area, #RESShortcutsEditContainer > *, #RESShortcutsEditContainer,
-    .debuginfo, .content, .res-expando-box, .top-matter{
-        background-color: black !important; color: white !important;
-    }
-    p.debuginfo, .subbarlink, #srDropdownContainer a{ color: white !important; }
-    div.nav-buttons{
-        display: flex; align-items: center; justify-content: center;
-        height: 10vh; width: 100vw; margin-top: 20vh; margin-bottom: 20vh;
-    }
-    span.next-button, span.prev-button{ margin: 2vh !important; padding: 2vh; }
-    span.next-button a, span.prev-button a{
-        height: 100%; font-size: 8vh; background: black !important;
-        color: white !important; padding: 0.2vw;
-    }
-    span.next-button a:hover, span.prev-button a:hover{ background: white; color: black; }
-    @keyframes fadeIn { from { color: black; opacity: 0; } to { opacity: 1; } }
-    .happening-now-wrap, span.score, .userattrs, span.score-hidden, .awardings-bar,
-    .listing-chooser, .give-gold-button, .share, .save-button, .saveComments,
-    .crosspost-button, .report-button, .footer-parent, .presence_circle,
-    .infobar-toaster-container, #notifications, #chat-v2, .badge-count{
-        display: none !important;
-    }
-        `;
-        document.head.appendChild(style);
-    }
+    const injectStyles = () => { }
     const main = () => {
         console.log("Start of main (old reddit frontpage)");
-        injectStyles();
+        injectOldRedditStyles();
         const sidebar = document.querySelector(".side");
         const user = document.querySelector("span.user");
         removeExtraUserInfo(user);
