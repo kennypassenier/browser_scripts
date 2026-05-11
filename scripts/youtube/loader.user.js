@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         youtube
 // @namespace    Custom.Automation
-// @version      1778533338
+// @version      1778533818
 // @description
 // @author       Kenny
 // @match        *://*.youtube.com/*
