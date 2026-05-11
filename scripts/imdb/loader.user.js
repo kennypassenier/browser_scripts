@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         imdb
 // @namespace    Custom.Automation
-// @version      1778534099
+// @version      1778534312
 // @description  
 // @author       Kenny
 // @match        *://*.imdb.com
