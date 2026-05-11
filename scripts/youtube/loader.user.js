@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         youtube Loader
 // @namespace    Custom.Automation
-// @version      1778521793
+// @version      1778522066
 // @description
 // @author       Kenny
-// @match        *.youtube.com
+// @match        *://*.youtube.com/*
 
 // @run-at       document-idle
 // @grant        none

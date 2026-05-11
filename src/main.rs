@@ -63,8 +63,8 @@ fn create_project(config: &Config, root: &PathBuf) {
 
     // 2. Match Pattern
     println!("\n--- MATCH PATTERN HELP ---");
-    println!("Wildcards (*): Matches any character sequence.");
-    println!("Example: *://*.reddit.com/* (Matches all Reddit pages on HTTP/HTTPS)");
+    println!("Format: *://<domain>/<path>");
+    println!("Example: *://*.youtube.com/* (all YouTube pages on HTTP/HTTPS)");
     let match_pattern: String = Input::with_theme(&theme)
         .with_prompt("Enter Primary Match Pattern")
         .interact_text()
