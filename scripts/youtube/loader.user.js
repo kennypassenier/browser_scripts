@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         youtube Loader
 // @namespace    Custom.Automation
-// @version      1778519986
-// @description   
+// @version      1778521060
+// @description
 // @author       Kenny
 // @match        *.youtube.com
 
