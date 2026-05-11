@@ -11,5 +11,5 @@
 // @exclude-match *://old.reddit.com/user/*
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/logic.js
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/logic.js?v=1778538904
 // ==/UserScript==

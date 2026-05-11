@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        GM_addStyle
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/redditold/logic.js
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/redditold/logic.js?v=1778538904
 // ==/UserScript==
