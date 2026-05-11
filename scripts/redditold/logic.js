@@ -88,7 +88,8 @@ const main = () => {
     loginUser();
 }
 
-GM_addStyle(`
+const __style = document.createElement('style');
+__style.textContent = `
     .fixedSite{
 	color: #DE781F !important;
     }
@@ -254,6 +255,7 @@ GM_addStyle(`
     {
         display: none;
     }
-`);
+`;
+document.head.appendChild(__style);
 
 main();

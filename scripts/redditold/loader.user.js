@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         redditold
 // @namespace    Custom.Automation
-// @version      1778538904
+// @version      1778540063
 // @description
 // @author       Kenny
 // @match        *://old.reddit.com/*
@@ -9,6 +9,6 @@
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/redditold/loader.user.js
 
 // @run-at       document-idle
-// @grant        GM_addStyle
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/redditold/logic.js?v=1778538904
+// @grant        none
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/redditold/logic.js?v=1778540063
 // ==/UserScript==
