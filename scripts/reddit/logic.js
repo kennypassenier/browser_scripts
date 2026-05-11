@@ -1,5 +1,190 @@
 'use strict';
-if (location.host === 'old.reddit.com' || location.host.startsWith('www.') || /\/comments\//.test(location.pathname)) return;
+
+// ─── Shared utilities ────────────────────────────────────────────────────────
+
+const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const generateSeperator = () => {
+    const sep = document.createElement("span");
+    sep.textContent = " | ";
+    sep.className = "seperator";
+    return sep;
+}
+
+const removeParentOfAllNodes = (nodes) => {
+    nodes.forEach((node) => {
+        const target = node.parentElement;
+        target.parentElement.removeChild(target);
+    });
+}
+
+const detectRickroll = () => {
+    for (const link of document.querySelectorAll("a")) {
+        if (link.href.includes("dQw4w9WgXcQ")) {
+            link.title = link.textContent;
+            link.textContent = "--> RICKROLL <--";
+        }
+    }
+}
+
+// ─── URL routing ─────────────────────────────────────────────────────────────
+
+const host = location.host;
+const path = location.pathname;
+const isOldReddit = host === 'old.reddit.com';
+const isComments = /\/comments\//.test(path);
+const isWww = host.startsWith('www.');
+
+if (isWww) {
+    location.replace(location.protocol + '//old.reddit.com' + path + location.search);
+} else if (isOldReddit && isComments) {
+    runOldRedditComments();
+} else if (isOldReddit) {
+    runOldRedditFrontpage();
+} else {
+    runNewRedditFrontpage();
+}
+
+// ─── old.reddit.com — comments ───────────────────────────────────────────────
+
+function runOldRedditComments() {
+    const addCustomMenu = () => {
+        // const header = document.querySelector("#header-bottom-right");
+        // Reveddit/Unddit links can be re-enabled here when needed
+    }
+    const main = () => {
+        console.log("Start of main (comments)");
+        removeParentOfAllNodes(document.querySelectorAll(".embed-comment"));
+        removeParentOfAllNodes(document.querySelectorAll(".toggleChildren"));
+        detectRickroll();
+        addCustomMenu();
+        console.log("End of main (comments)");
+    }
+    main();
+}
+
+// ─── old.reddit.com — frontpage ──────────────────────────────────────────────
+
+function runOldRedditFrontpage() {
+    const toggleElement = (el) => {
+        el.style.display === "none" ? el.style.display = "block" : el.style.display = "none";
+    }
+    const applyStrikeThrough = (el) => {
+        el.classList.toggle("strikeThrough");
+    }
+    const clickShowImages = async () => {
+        await timeout(100);
+        document.querySelector(".res-show-images a").click();
+    }
+    const removeExtraUserInfo = (el) => {
+        const accountSwitcher = el.querySelector("#RESAccountSwitcherIcon");
+        const userlink = el.querySelector("a");
+        el.textContent = "";
+        el.appendChild(userlink);
+        el.appendChild(accountSwitcher);
+    }
+    const loginUser = () => {
+        console.log("Start of login function");
+        const userSpan = document.querySelector("#header-bottom-right span");
+        const loginLink = userSpan.querySelector("a.login-link");
+        if (loginLink) {
+            const switcher = userSpan.querySelector("#RESAccountSwitcherIcon");
+            switcher.click();
+            const inter = setInterval(() => {
+                const accountItem = document.querySelector(".RESHover.RESHoverDropdownList ul li");
+                if (accountItem) {
+                    accountItem.click();
+                    clearInterval(inter);
+                }
+            }, 20);
+        }
+    }
+    const addCustomMenu = () => {
+        const header = document.querySelector("#header-bottom-right");
+        const sidebarLink = document.createElement("a");
+        sidebarLink.id = "sidebarToggle";
+        sidebarLink.href = "#";
+        sidebarLink.className = "strikeThrough";
+        sidebarLink.textContent = "Sidebar";
+        header.appendChild(generateSeperator());
+        header.appendChild(sidebarLink);
+    }
+    const injectStyles = () => {
+        const style = document.createElement('style');
+        style.id = 'redditold-custom-styles';
+        style.textContent = `
+    .fixedSite{ color: #DE781F !important; }
+    .trashSite{ color: #253529 !important; }
+    .paywall{ color: #1F85DE !important; }
+    .strikeThrough{ text-decoration: line-through; color: white !important; }
+    .animateLink{ animation-duration: 3s; animation-name: fadeIn; animation-timing-function: ease; }
+    #NREMailCount[title="new mail!"]{
+        display: flex; width: 100%; min-width: 2rem;
+        justify-content: center; align-content: center; align-items: center;
+        color: black; font-size: 1.4rem; min-height: 1.5rem; font-family: Verdana;
+    }
+    #NREMailCount:hover{ display: block; }
+    .linkflairlabel{ font-size: 2vh; }
+    .commentarea .midcol{ float: right; }
+    .entry{ padding-left: 25px; }
+    .commentarea .comment > .entry > .tagline > .expand{
+        padding: 10px !important; display: inline-block !important;
+        min-width: 2em !important; text-align: center !important;
+    }
+    div.res-expando-box{ background-color: transparent !important; }
+    body, #sr-header-area, #RESShortcutsEditContainer > *, #RESShortcutsEditContainer,
+    .debuginfo, .content, .res-expando-box, .top-matter{
+        background-color: black !important; color: white !important;
+    }
+    p.debuginfo, .subbarlink, #srDropdownContainer a{ color: white !important; }
+    div.nav-buttons{
+        display: flex; align-items: center; justify-content: center;
+        height: 10vh; width: 100vw; margin-top: 20vh; margin-bottom: 20vh;
+    }
+    span.next-button, span.prev-button{ margin: 2vh !important; padding: 2vh; }
+    span.next-button a, span.prev-button a{
+        height: 100%; font-size: 8vh; background: black !important;
+        color: white !important; padding: 0.2vw;
+    }
+    span.next-button a:hover, span.prev-button a:hover{ background: white; color: black; }
+    @keyframes fadeIn { from { color: black; opacity: 0; } to { opacity: 1; } }
+    .happening-now-wrap, span.score, .userattrs, span.score-hidden, .awardings-bar,
+    .listing-chooser, .give-gold-button, .share, .save-button, .saveComments,
+    .crosspost-button, .report-button, .footer-parent, .presence_circle,
+    .infobar-toaster-container, #notifications, #chat-v2, .badge-count{
+        display: none !important;
+    }
+        `;
+        document.head.appendChild(style);
+    }
+    const main = () => {
+        console.log("Start of main (old reddit frontpage)");
+        injectStyles();
+        const sidebar = document.querySelector(".side");
+        const user = document.querySelector("span.user");
+        removeExtraUserInfo(user);
+        addCustomMenu();
+        const sidebarToggle = document.querySelector("#sidebarToggle");
+        sidebarToggle.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.target.classList.toggle("animateLink", true);
+            toggleElement(sidebar);
+            applyStrikeThrough(sidebarToggle);
+            await timeout(2000);
+            e.target.classList.toggle("animateLink", false);
+        });
+        clickShowImages();
+        toggleElement(sidebar);
+        loginUser();
+        console.log("End of main (old reddit frontpage)");
+    }
+    main();
+}
+
+// ─── new reddit — frontpage ───────────────────────────────────────────────────
+
+function runNewRedditFrontpage() {
+    if (/\/comments\//.test(path)) return;
 // Time to live is one day in milliseconds
 const localStorageTimeToLive = 1000 * 60 * 60 * 72;
 const storage = window.localStorage;
@@ -93,10 +278,6 @@ const bannedFlairList = [
     "trump news",
 ];
 
-// Functions
-const timeout = (ms) => {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 const isTitleClean = (title, titleFilterList) => {
     title = title.toLowerCase();
     for (let filterItem of titleFilterList) {
@@ -231,13 +412,6 @@ const filterEntries = async () => {
 }
 const toggleFilter = () => {
     filterIsActive = !filterIsActive;
-}
-const generateSeperator = () => {
-    let seperator = document.createElement("span");
-    seperator.textContent = " | ";
-    seperator.className = "seperator";
-    //console.log(seperator);
-    return seperator;
 }
 const hideElement = (el) => {
     el.style.display = "none";
@@ -455,3 +629,4 @@ const main = () => {
 }
 
 main();
+}
