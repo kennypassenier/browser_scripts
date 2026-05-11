@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         takeaway
 // @namespace    Custom.Automation
-// @version      1778542417
+// @version      1778542626
 // @description  
 // @author       Kenny
 // @match        *://checkout.takeaway.com
