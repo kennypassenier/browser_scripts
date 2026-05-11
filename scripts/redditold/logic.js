@@ -257,5 +257,6 @@ __style.textContent = `
     }
 `;
 document.head.appendChild(__style);
+console.log("[redditold] style injected:", document.head.contains(__style));
 
 main();

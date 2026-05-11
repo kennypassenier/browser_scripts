@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         redditold
 // @namespace    Custom.Automation
-// @version      1778540239
+// @version      1778540397
 // @description
 // @author       Kenny
 // @match        *://old.reddit.com/*
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/redditold/logic.js?v=1778540063
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/redditold/logic.js?v=1778540397
 // ==/UserScript==
