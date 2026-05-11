@@ -63,12 +63,14 @@ fn create_project(config: &Config, root: &PathBuf) {
 
     // 2. Match Pattern
     println!("\n--- MATCH PATTERN HELP ---");
-    println!("Format: *://<domain>/<path>");
-    println!("Example: *://*.youtube.com/* (all YouTube pages on HTTP/HTTPS)");
-    let match_pattern: String = Input::with_theme(&theme)
-        .with_prompt("Enter Primary Match Pattern")
+    println!("Format: *://*.<domain>/<path>  (prefix *://*. is added automatically)");
+    println!("Example: type 'youtube.com/*' → becomes '*://*.youtube.com/*'");
+    let match_suffix: String = Input::with_theme(&theme)
+        .with_prompt("Enter Match Pattern (*://*.<suffix>)")
+        .with_initial_text("youtube.com/*")
         .interact_text()
         .unwrap();
+    let match_pattern = format!("*://*.{match_suffix}");
 
     // 3. Exclude Patterns
     let mut excludes = Vec::new();
