@@ -166,7 +166,7 @@ __style.textContent = `
 
     /*Make the black box behind a video transparent*/
     div.res-expando-box{
-        background-color: transparent;
+        background-color: transparent !important;
     }
 
 
@@ -181,7 +181,7 @@ __style.textContent = `
     .res-expando-box,
     .top-matter{
         background-color: black !important;
-        color: white;
+        color: white !important;
     }
 
     p.debuginfo ,
@@ -253,7 +253,7 @@ __style.textContent = `
     #chat-v2,
     .badge-count
     {
-        display: none;
+        display: none !important;
     }
 `;
 document.head.appendChild(__style);
