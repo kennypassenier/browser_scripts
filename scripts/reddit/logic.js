@@ -154,10 +154,10 @@ const setupSidebarToggle = () => {
     });
 };
 
-function injectOldRedditStyles() {
-    if (document.getElementById('redditold-custom-styles')) return;
+function injectStyles() {
+    if (document.getElementById('reddit-custom-styles')) return;
     const style = document.createElement('style');
-    style.id = 'redditold-custom-styles';
+    style.id = 'reddit-custom-styles';
     style.textContent = `
     .fixedSite{ color: #DE781F !important; }
     .trashSite{ color: #253529 !important; }
@@ -215,26 +215,22 @@ const isWww = host.startsWith('www.');
 if (isWww) {
     location.replace(location.protocol + '//old.reddit.com' + path + location.search);
 } else if (isOldReddit && isComments) {
-    injectOldRedditStyles();
     runCommentsPage();
 } else if (isOldReddit) {
     runFrontpage();
 } else {
-    runNewFrontpage();
+    runModernFrontpage();
 }
 
 // ─── old.reddit.com — comments ───────────────────────────────────────────────
 
 function runCommentsPage() {
-    const addCustomMenu = () => {
-        // Reveddit/Unddit links can be re-enabled here when needed
-    };
-
+    injectStyles();
     removeParentOfAllNodes(document.querySelectorAll(".embed-comment"));
     removeParentOfAllNodes(document.querySelectorAll(".toggleChildren"));
     detectRickroll();
     setupSidebarToggle();
-    addCustomMenu();
+    // TODO: add custom menu items here (e.g. Reveddit/Unddit links)
 }
 
 // ─── old.reddit.com — frontpage ──────────────────────────────────────────────
@@ -245,7 +241,7 @@ function runFrontpage() {
         document.querySelector(".res-show-images a").click();
     };
 
-    const removeExtraUserInfo = (el) => {
+    const simplifyUserHeader = (el) => {
         const accountSwitcher = el.querySelector("#RESAccountSwitcherIcon");
         const userlink = el.querySelector("a");
         el.textContent = "";
@@ -269,22 +265,17 @@ function runFrontpage() {
         }
     };
 
-    const addCustomMenu = () => {
-        // Sidebar toggle is handled by setupSidebarToggle() (shared with comments page)
-    };
-
-    injectOldRedditStyles();
+    injectStyles();
     const user = document.querySelector("span.user");
-    removeExtraUserInfo(user);
+    simplifyUserHeader(user);
     setupSidebarToggle();
-    addCustomMenu();
     clickShowImages();
     loginUser();
 }
 
 // ─── new reddit — frontpage ───────────────────────────────────────────────────
 
-function runNewFrontpage() {
+function runModernFrontpage() {
     if (/\/comments\//.test(path)) return;
 
     const storage = window.localStorage;
