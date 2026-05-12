@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         bol
 // @namespace    Custom.Automation
-// @version      1778549958
+// @version      1778550369
 // @description  
 // @author       Kenny
 // @match        *://*.bol.com/*
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        none
-// @require      https://cdn.jsdelivr.net/gh/kennypassenier/browser_scripts@main/scripts/bol/logic.js?v=1778549958
+// @require      https://cdn.jsdelivr.net/gh/kennypassenier/browser_scripts@main/scripts/bol/logic.js?v=1778550369
 // ==/UserScript==
