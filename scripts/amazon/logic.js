@@ -1,14 +1,10 @@
-// Referrer link van Mobile Vikings: geeft gratis Viking Points.
-// Uses a 7-day localStorage TTL as loop guard. Amazon strips the tag param from the URL
-// after processing it, so we can't use URL params to detect "already applied".
-(() => {
-    const KEY = 'amazon_tag_applied';
-    const TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
+(async () => {
+    const targetURL = "https://www.amazon.com.be/?&_encoding=UTF8&tag=mobilevikin07-21&ascsubtag=127214";
 
-    const last = localStorage.getItem(KEY);
-    if (last && Date.now() - parseInt(last) < TTL) return;
-
-    localStorage.setItem(KEY, Date.now().toString());
-    const sep = window.location.search ? '&' : '?';
-    window.location.replace(window.location.href + sep + 'tag=mobilevikin07-21&ascsubtag=127214');
+    // Check if the current URL matches the bol.com homepage
+    if (window.location.href === "https://www.amazon.com.be/") {
+        // Redirect to the target URL
+        window.location.href = targetURL;
+    }
 })();
+// Free mobile viking points with this referrer link
