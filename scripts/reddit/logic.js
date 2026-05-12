@@ -216,16 +216,16 @@ if (isWww) {
     location.replace(location.protocol + '//old.reddit.com' + path + location.search);
 } else if (isOldReddit && isComments) {
     injectOldRedditStyles();
-    runOldRedditComments();
+    runCommentsPage();
 } else if (isOldReddit) {
-    runOldRedditFrontpage();
+    runFrontpage();
 } else {
-    runNewRedditFrontpage();
+    runNewFrontpage();
 }
 
 // ─── old.reddit.com — comments ───────────────────────────────────────────────
 
-function runOldRedditComments() {
+function runCommentsPage() {
     const addCustomMenu = () => {
         // Reveddit/Unddit links can be re-enabled here when needed
     };
@@ -239,7 +239,7 @@ function runOldRedditComments() {
 
 // ─── old.reddit.com — frontpage ──────────────────────────────────────────────
 
-function runOldRedditFrontpage() {
+function runFrontpage() {
     const clickShowImages = async () => {
         await timeout(100);
         document.querySelector(".res-show-images a").click();
@@ -284,7 +284,7 @@ function runOldRedditFrontpage() {
 
 // ─── new reddit — frontpage ───────────────────────────────────────────────────
 
-function runNewRedditFrontpage() {
+function runNewFrontpage() {
     if (/\/comments\//.test(path)) return;
 
     const storage = window.localStorage;
