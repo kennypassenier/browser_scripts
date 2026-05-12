@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         takeaway
 // @namespace    Custom.Automation
-// @version      1778548677
+// @version      1778548747
 // @description  
 // @author       Kenny
 // @match        *://checkout.takeaway.com
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/takeaway/logic.js?v=1778548677
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/takeaway/logic.js?v=1778548747
 // ==/UserScript==
