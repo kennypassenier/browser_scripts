@@ -209,25 +209,8 @@ fn create_project(config: &Config, root: &PathBuf) {
     println!("\nSuccess: Website '{}' setup complete.", name);
 }
 
-fn purge_jsdelivr(gh_user: &str, gh_repo: &str, path: &str) {
-    let url = format!(
-        "https://purge.jsdelivr.net/gh/{}/{}@main/{}",
-        gh_user, gh_repo, path
-    );
-    match ureq::get(&url).call() {
-        Ok(_) => println!("Purged: {}", path),
-        Err(e) => println!("Purge failed for {}: {}", path, e),
-    }
-}
-
 fn update_all(root: &PathBuf) {
-    dotenvy::from_path(root.join(".env")).ok();
-    let gh_user = env::var("GH_USER").expect("GH_USER not set in .env");
-    let gh_repo = env::var("GH_REPO").expect("GH_REPO not set in .env");
-
     let timestamp = Utc::now().timestamp().to_string();
-    let mut loader_paths: Vec<String> = Vec::new();
-
     for entry in WalkDir::new(root)
         .into_iter()
         .filter_map(|e| e.ok())
@@ -253,22 +236,11 @@ fn update_all(root: &PathBuf) {
             })
             .collect();
         fs::write(entry.path(), lines.join("\r\n") + "\r\n").unwrap();
-
-        // Collect relative path for purging (e.g. scripts/amazon/loader.user.js)
-        if let Ok(rel) = entry.path().strip_prefix(root) {
-            loader_paths.push(rel.to_string_lossy().replace('\\', "/"));
-        }
     }
-
     Command::new("git").args(["add", "."]).status().unwrap();
     Command::new("git")
         .args(["commit", "-m", &format!("Update versions: {}", timestamp)])
         .status()
         .unwrap();
     Command::new("git").args(["push"]).status().unwrap();
-
-    println!("Purging jsDelivr cache for {} files...", loader_paths.len());
-    for path in &loader_paths {
-        purge_jsdelivr(&gh_user, &gh_repo, path);
-    }
 }
