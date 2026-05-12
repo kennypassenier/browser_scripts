@@ -127,6 +127,33 @@ const detectRickroll = () => {
 // Traverse up the DOM to the nearest .thing element (old Reddit's post container).
 const getPostElement = (el) => el.closest('.thing');
 
+// Adds a "Sidebar" toggle to the header and hides the sidebar by default.
+// Shared between the comments page and the frontpage.
+const setupSidebarToggle = () => {
+    const sidebar = document.querySelector(".side");
+    const header = document.querySelector("#header-bottom-right");
+    if (!sidebar || !header) return;
+
+    const sidebarLink = document.createElement("a");
+    sidebarLink.id = "sidebarToggle";
+    sidebarLink.href = "#";
+    sidebarLink.className = "strikeThrough";
+    sidebarLink.textContent = "Sidebar";
+    header.appendChild(generateSeparator());
+    header.appendChild(sidebarLink);
+
+    sidebar.style.display = "none";
+
+    sidebarLink.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.target.classList.toggle("animateLink", true);
+        sidebar.style.display = sidebar.style.display === "none" ? "block" : "none";
+        sidebarLink.classList.toggle("strikeThrough");
+        await timeout(2000);
+        e.target.classList.toggle("animateLink", false);
+    });
+};
+
 function injectOldRedditStyles() {
     if (document.getElementById('redditold-custom-styles')) return;
     const style = document.createElement('style');
@@ -206,20 +233,13 @@ function runOldRedditComments() {
     removeParentOfAllNodes(document.querySelectorAll(".embed-comment"));
     removeParentOfAllNodes(document.querySelectorAll(".toggleChildren"));
     detectRickroll();
+    setupSidebarToggle();
     addCustomMenu();
 }
 
 // ─── old.reddit.com — frontpage ──────────────────────────────────────────────
 
 function runOldRedditFrontpage() {
-    const toggleElement = (el) => {
-        el.style.display = el.style.display === "none" ? "block" : "none";
-    };
-
-    const applyStrikeThrough = (el) => {
-        el.classList.toggle("strikeThrough");
-    };
-
     const clickShowImages = async () => {
         await timeout(100);
         document.querySelector(".res-show-images a").click();
@@ -250,32 +270,15 @@ function runOldRedditFrontpage() {
     };
 
     const addCustomMenu = () => {
-        const header = document.querySelector("#header-bottom-right");
-        const sidebarLink = document.createElement("a");
-        sidebarLink.id = "sidebarToggle";
-        sidebarLink.href = "#";
-        sidebarLink.className = "strikeThrough";
-        sidebarLink.textContent = "Sidebar";
-        header.appendChild(generateSeparator());
-        header.appendChild(sidebarLink);
+        // Sidebar toggle is handled by setupSidebarToggle() (shared with comments page)
     };
 
     injectOldRedditStyles();
-    const sidebar = document.querySelector(".side");
     const user = document.querySelector("span.user");
     removeExtraUserInfo(user);
+    setupSidebarToggle();
     addCustomMenu();
-    const sidebarToggle = document.querySelector("#sidebarToggle");
-    sidebarToggle.addEventListener("click", async (e) => {
-        e.preventDefault();
-        e.target.classList.toggle("animateLink", true);
-        toggleElement(sidebar);
-        applyStrikeThrough(sidebarToggle);
-        await timeout(2000);
-        e.target.classList.toggle("animateLink", false);
-    });
     clickShowImages();
-    toggleElement(sidebar);
     loginUser();
 }
 
