@@ -225,6 +225,11 @@ fn update_all(root: &PathBuf) {
             .map(|line| {
                 if line.contains("@version") {
                     format!("// @version      {}", timestamp)
+                } else if line.contains("?v=") {
+                    let before = line.split_once("?v=").unwrap().0;
+                    let after_v = line.split_once("?v=").unwrap().1;
+                    let rest = after_v.trim_start_matches(|c: char| c.is_ascii_digit());
+                    format!("{}?v={}{}", before, timestamp, rest)
                 } else {
                     line.to_string()
                 }

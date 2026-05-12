@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         youtube
 // @namespace    Custom.Automation
-// @version      1778548303
+// @version      1778548479
 // @description
 // @author       Kenny
 // @match        *://*.youtube.com/*
@@ -9,5 +9,5 @@
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/loader.user.js
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/logic.js?v=1778540063
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/logic.js?v=1778548479
 // ==/UserScript==
