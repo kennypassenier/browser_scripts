@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         google
 // @namespace    Custom.Automation
-// @version      1778549091
+// @version      1778549136
 // @description  
 // @author       Kenny
 // @match        *://www.google.com/*
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        GM_addStyle
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/google/logic.js?v=1778549091
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/google/logic.js?v=1778549136
 // ==/UserScript==
