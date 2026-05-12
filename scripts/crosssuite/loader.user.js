@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         crosssuite
 // @namespace    Custom.Automation
-// @version      1778548747
+// @version      1778548975
 // @description  
 // @author       Kenny
 // @match        *://agenda.crossuite.com
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/crosssuite/logic.js?v=1778548747
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/crosssuite/logic.js?v=1778548975
 // ==/UserScript==
