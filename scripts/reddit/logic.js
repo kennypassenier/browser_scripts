@@ -131,6 +131,17 @@ const detectRickroll = () => {
     }
 };
 
+// The user span in the header contains karma counts, mail icons, and other noise.
+// We strip it down to just the username link and the RES account switcher icon,
+// keeping the header clean without breaking RES account switching.
+const simplifyUserHeader = (el) => {
+    const accountSwitcher = el.querySelector("#RESAccountSwitcherIcon");
+    const userlink = el.querySelector("a");
+    el.textContent = "";
+    el.appendChild(userlink);
+    el.appendChild(accountSwitcher);
+};
+
 // Old Reddit wraps each post in a <div class="thing">. Many elements (title links,
 // subreddit labels, hide buttons) are deep children of it. This helper lets us
 // reach the post container from any descendant without brittle parentNode chains.
@@ -249,9 +260,11 @@ if (isWww) {
 // - Removes embedded comment previews (.embed-comment) and their wrappers
 // - Removes inline "show child comments" toggles (.toggleChildren) and their wrappers
 // - Flags any YouTube rickroll links with visible text so they can't sneak by
+// - Strips karma/noise from the header user span (same as the frontpage)
 // - Hides the sidebar by default and adds a toggle for it in the header
 function runCommentsPage() {
     injectStyles();
+    simplifyUserHeader(document.querySelector("span.user"));
     removeParentOfAllNodes(document.querySelectorAll(".embed-comment"));
     removeParentOfAllNodes(document.querySelectorAll(".toggleChildren"));
     detectRickroll();
@@ -273,17 +286,6 @@ function runFrontpage() {
     const clickShowImages = async () => {
         await timeout(100);
         document.querySelector(".res-show-images a").click();
-    };
-
-    // The user span in the header contains karma counts, mail icons, and other noise.
-    // We strip it down to just the username link and the RES account switcher icon,
-    // keeping the header clean without breaking RES account switching.
-    const simplifyUserHeader = (el) => {
-        const accountSwitcher = el.querySelector("#RESAccountSwitcherIcon");
-        const userlink = el.querySelector("a");
-        el.textContent = "";
-        el.appendChild(userlink);
-        el.appendChild(accountSwitcher);
     };
 
     // If Reddit shows a login link (i.e. we're not logged in), open the RES account
