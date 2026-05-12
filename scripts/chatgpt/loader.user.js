@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatgpt
 // @namespace    Custom.Automation
-// @version      1778547897
+// @version      1778547925
 // @description
 // @author       Kenny
 // @match        *://chatgpt.com
