@@ -5,10 +5,10 @@
 // - old.reddit.com  → dark theme injected, sidebar hidden, auto-login via RES
 //   - /comments/ pages → comment cleanup (embed removal, rickroll detection)
 //   - all other pages  → frontpage (show-images, sidebar toggle)
-// - any other subdomain → treated as the modern Reddit UI (filtering, hide posts)
+// - any other subdomain → custom filtering layer (post/author/flair/domain filters, hide posts)
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-// Edit these lists to control what gets filtered on the modern Reddit frontpage.
+// Edit these lists to control what gets filtered on the frontpage.
 
 const PAYWALL_REMOVAL_SERVICE = "https://www.smry.ai/proxy?url=";
 const LOCALSTORAGE_TTL = 1000 * 60 * 60 * 72; // 72 hours
@@ -238,7 +238,7 @@ if (isWww) {
     // The frontpage (or a subreddit listing) on old Reddit.
     runFrontpage();
 } else {
-    // Any other subdomain is assumed to be the modern Reddit UI.
+    // Fallback for any other subdomain — runs the custom filtering layer.
     runModernFrontpage();
 }
 
@@ -313,9 +313,10 @@ function runFrontpage() {
     loginUser();
 }
 
-// ─── modern reddit — frontpage ────────────────────────────────────────────────
+// ─── custom filtering — frontpage ────────────────────────────────────────────
 
-// Runs on the modern Reddit UI (www.reddit.com or other subdomains).
+// Custom filtering layer for the Reddit frontpage listing.
+// This is not a response to Reddit's UI — it's a personal comfort layer built from scratch.
 // - Adds "Filter" and "Hide posts" buttons to the header
 // - Classifies external links by domain (paywall, trash site, fixed site) using CSS classes
 // - Filters posts by title keywords, author, and flair (driven by the config lists at the top)
