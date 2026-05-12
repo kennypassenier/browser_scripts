@@ -5,7 +5,7 @@
     const REFERRER_PARAMS = "_encoding=UTF8&tag=mobilevikin07-21&ascsubtag=127214";
 
     const url = new URL(window.location.href);
-    if (!url.searchParams.has('tag')) {
+    if (!url.searchParams.has('_encoding')) {
         const separator = window.location.search ? '&' : '?';
         window.location.replace(window.location.href + separator + REFERRER_PARAMS);
     }
