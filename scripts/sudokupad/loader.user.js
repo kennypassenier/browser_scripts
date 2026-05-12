@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         sudokupad
 // @namespace    Custom.Automation
-// @version      1778550962
+// @version      1778551229
 // @description  
 // @author       Kenny
 // @match        *://sudokupad.app/*
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        GM_addStyle
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/sudokupad/logic.js?v=1778550962
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/sudokupad/logic.js?v=1778551229
 // ==/UserScript==
