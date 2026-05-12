@@ -1,7 +1,14 @@
 ﻿'use strict';
 
+// This script runs on all reddit.com subdomains.
+// - www.reddit.com  → redirected immediately to old.reddit.com
+// - old.reddit.com  → dark theme injected, sidebar hidden, auto-login via RES
+//   - /comments/ pages → comment cleanup (embed removal, rickroll detection)
+//   - all other pages  → frontpage (show-images, sidebar toggle)
+// - any other subdomain → treated as the modern Reddit UI (filtering, hide posts)
+
 // ─── Config ───────────────────────────────────────────────────────────────────
-// Edit these lists to control what gets filtered on new Reddit.
+// Edit these lists to control what gets filtered on the modern Reddit frontpage.
 
 const PAYWALL_REMOVAL_SERVICE = "https://www.smry.ai/proxy?url=";
 const LOCALSTORAGE_TTL = 1000 * 60 * 60 * 72; // 72 hours
@@ -124,11 +131,16 @@ const detectRickroll = () => {
     }
 };
 
-// Traverse up the DOM to the nearest .thing element (old Reddit's post container).
+// Old Reddit wraps each post in a <div class="thing">. Many elements (title links,
+// subreddit labels, hide buttons) are deep children of it. This helper lets us
+// reach the post container from any descendant without brittle parentNode chains.
 const getPostElement = (el) => el.closest('.thing');
 
-// Adds a "Sidebar" toggle to the header and hides the sidebar by default.
-// Shared between the comments page and the frontpage.
+// Old Reddit's sidebar takes up a lot of horizontal space and is rarely needed.
+// This adds a "Sidebar" link to the top-right header that shows/hides it on demand.
+// The sidebar starts hidden. The link gets a strikethrough when the sidebar is hidden
+// (strikethrough = "this thing is off"), consistent with the Filter toggle in runModernFrontpage.
+// Shared between runCommentsPage and runFrontpage.
 const setupSidebarToggle = () => {
     const sidebar = document.querySelector(".side");
     const header = document.querySelector("#header-bottom-right");
@@ -154,6 +166,10 @@ const setupSidebarToggle = () => {
     });
 };
 
+// Injects the dark theme and UI cleanup CSS for old.reddit.com.
+// Covers: dark background, white text, enlarged collapse bars, hidden clutter
+// (scores, gold, share, report, badges, notifications, etc.), and nav button restyling.
+// The id guard prevents double-injection if the script somehow runs twice.
 function injectStyles() {
     if (document.getElementById('reddit-custom-styles')) return;
     const style = document.createElement('style');
@@ -213,17 +229,27 @@ const isComments = /\/comments\//.test(path);
 const isWww = host.startsWith('www.');
 
 if (isWww) {
+    // Redirect www.reddit.com to old.reddit.com, preserving the path and query string.
     location.replace(location.protocol + '//old.reddit.com' + path + location.search);
 } else if (isOldReddit && isComments) {
+    // A thread/comments page on old Reddit — different layout from the frontpage.
     runCommentsPage();
 } else if (isOldReddit) {
+    // The frontpage (or a subreddit listing) on old Reddit.
     runFrontpage();
 } else {
+    // Any other subdomain is assumed to be the modern Reddit UI.
     runModernFrontpage();
 }
 
-// ─── old.reddit.com — comments ───────────────────────────────────────────────
+// ─── old.reddit.com — comments page ─────────────────────────────────────────
 
+// Cleans up a thread page on old.reddit.com.
+// - Injects the shared dark theme
+// - Removes embedded comment previews (.embed-comment) and their wrappers
+// - Removes inline "show child comments" toggles (.toggleChildren) and their wrappers
+// - Flags any YouTube rickroll links with visible text so they can't sneak by
+// - Hides the sidebar by default and adds a toggle for it in the header
 function runCommentsPage() {
     injectStyles();
     removeParentOfAllNodes(document.querySelectorAll(".embed-comment"));
@@ -233,14 +259,25 @@ function runCommentsPage() {
     // TODO: add custom menu items here (e.g. Reveddit/Unddit links)
 }
 
-// ─── old.reddit.com — frontpage ──────────────────────────────────────────────
+// ─── old.reddit.com — frontpage ─────────────────────────────────────────────
 
+// Sets up the old Reddit listing page (frontpage or subreddit).
+// - Injects the shared dark theme
+// - Strips the user span down to just the username link + RES account switcher icon
+// - Hides the sidebar by default and adds a toggle for it in the header
+// - Auto-clicks the RES "show images" button so images expand immediately
+// - Auto-logs in using the first account in the RES account switcher, if not already logged in
 function runFrontpage() {
+    // RES (Reddit Enhancement Suite) adds a "show images" button to the listing header.
+    // A short delay is needed because RES injects it slightly after page load.
     const clickShowImages = async () => {
         await timeout(100);
         document.querySelector(".res-show-images a").click();
     };
 
+    // The user span in the header contains karma counts, mail icons, and other noise.
+    // We strip it down to just the username link and the RES account switcher icon,
+    // keeping the header clean without breaking RES account switching.
     const simplifyUserHeader = (el) => {
         const accountSwitcher = el.querySelector("#RESAccountSwitcherIcon");
         const userlink = el.querySelector("a");
@@ -249,6 +286,9 @@ function runFrontpage() {
         el.appendChild(accountSwitcher);
     };
 
+    // If Reddit shows a login link (i.e. we're not logged in), open the RES account
+    // switcher dropdown and click the first account to auto-login. The interval polls
+    // because the RES dropdown renders asynchronously after the icon is clicked.
     const loginUser = () => {
         const userSpan = document.querySelector("#header-bottom-right span");
         const loginLink = userSpan.querySelector("a.login-link");
@@ -273,8 +313,14 @@ function runFrontpage() {
     loginUser();
 }
 
-// ─── new reddit — frontpage ───────────────────────────────────────────────────
+// ─── modern reddit — frontpage ────────────────────────────────────────────────
 
+// Runs on the modern Reddit UI (www.reddit.com or other subdomains).
+// - Adds "Filter" and "Hide posts" buttons to the header
+// - Classifies external links by domain (paywall, trash site, fixed site) using CSS classes
+// - Filters posts by title keywords, author, and flair (driven by the config lists at the top)
+// - Persists hidden posts in localStorage so they stay hidden across page loads (72h TTL)
+// - Resizes the next/prev navigation buttons at the bottom of the listing
 function runModernFrontpage() {
     if (/\/comments\//.test(path)) return;
 
