@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         play
 // @namespace    Custom.Automation
-// @version      1778548166
+// @version      1778548303
 // @description  
 // @author       Kenny
 // @match        *://*.play.tv/*
