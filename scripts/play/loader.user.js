@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         play
 // @namespace    Custom.Automation
-// @version      1778549136
+// @version      1778549310
 // @description  
 // @author       Kenny
 // @match        *://*.play.tv/*
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/play/logic.js?v=1778549136
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/play/logic.js?v=1778549310
 // ==/UserScript==
