@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         reddit
 // @namespace    Custom.Automation
-// @version      1778546730
+// @version      1778547897
 // @description
 // @author       Kenny
 // @match        *://*.reddit.com/*

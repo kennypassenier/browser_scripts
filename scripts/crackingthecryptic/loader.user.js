@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         crackingthecryptic
 // @namespace    Custom.Automation
-// @version      1778542626
+// @version      1778547897
 // @description  
 // @author       Kenny
 // @match        *://app.crackingthecryptic.com
