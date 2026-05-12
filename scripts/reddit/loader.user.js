@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         reddit
 // @namespace    Custom.Automation
-// @version      1778546517
+// @version      1778546730
 // @description
 // @author       Kenny
 // @match        *://*.reddit.com/*
@@ -9,5 +9,5 @@
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/loader.user.js
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/logic.js?v=1778546517
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/logic.js?v=1778546730
 // ==/UserScript==

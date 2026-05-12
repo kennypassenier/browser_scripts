@@ -147,6 +147,39 @@ const simplifyUserHeader = (el) => {
 // reach the post container from any descendant without brittle parentNode chains.
 const getPostElement = (el) => el.closest('.thing');
 
+// Replaces the default plain-text next/prev page links at the bottom of a listing
+// with large <<< / >>> arrows, making them easier to click.
+// Uses a short delay because old Reddit renders the nav bar slightly after the page loads.
+const changeNavigationButtons = () => {
+    setTimeout(() => {
+        const parent = document.querySelector(".nextprev");
+        if (!parent) return;
+        const next = document.querySelector(".next-button");
+        const prev = document.querySelector(".prev-button");
+        parent.textContent = "";
+        if (prev) {
+            prev.querySelector("a").textContent = "<<<";
+            parent.append(prev);
+        }
+        if (next) {
+            next.querySelector("a").textContent = ">>>";
+            parent.append(next);
+        }
+    }, 1000);
+};
+
+// Removes entries from the "hiddenPosts" localStorage key that are older than
+// LOCALSTORAGE_TTL. Keeps the stored list from growing indefinitely.
+const cleanLocalStorage = () => {
+    const hiddenPosts = JSON.parse(window.localStorage.getItem("hiddenPosts"));
+    if (!hiddenPosts) return;
+    const cutoffDate = Date.now() - LOCALSTORAGE_TTL;
+    const filtered = hiddenPosts.filter(e => e.timestamp >= cutoffDate);
+    if (filtered.length !== hiddenPosts.length) {
+        window.localStorage.setItem("hiddenPosts", JSON.stringify(filtered));
+    }
+};
+
 // Old Reddit's sidebar takes up a lot of horizontal space and is rarely needed.
 // This adds a "Sidebar" link to the top-right header that shows/hides it on demand.
 // The sidebar starts hidden. The link gets a strikethrough when the sidebar is hidden
@@ -313,6 +346,7 @@ function runFrontpage() {
     setupSidebarToggle();
     clickShowImages();
     loginUser();
+    changeNavigationButtons();
 }
 
 // ─── custom filtering — frontpage ────────────────────────────────────────────
@@ -435,33 +469,7 @@ function runModernFrontpage() {
         }
     };
 
-    const cleanLocalStorage = () => {
-        const hiddenPosts = JSON.parse(storage.getItem("hiddenPosts"));
-        if (!hiddenPosts) return;
-        const cutoffDate = Date.now() - LOCALSTORAGE_TTL;
-        const filtered = hiddenPosts.filter(e => e.timestamp >= cutoffDate);
-        if (filtered.length !== hiddenPosts.length) {
-            storage.setItem("hiddenPosts", JSON.stringify(filtered));
-        }
-    };
 
-    const changeNavigationButtons = () => {
-        setTimeout(() => {
-            const parent = document.querySelector(".nextprev");
-            if (!parent) return;
-            const next = document.querySelector(".next-button");
-            const prev = document.querySelector(".prev-button");
-            parent.textContent = "";
-            if (prev) {
-                prev.querySelector("a").textContent = "<<<";
-                parent.append(prev);
-            }
-            if (next) {
-                next.querySelector("a").textContent = ">>>";
-                parent.append(next);
-            }
-        }, 1000);
-    };
 
     // ── Main ──────────────────────────────────────────────────────────────────
 
