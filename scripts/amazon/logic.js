@@ -1,10 +1,17 @@
-(async () => {
-    const targetURL = "https://www.amazon.com.be/?&_encoding=UTF8&tag=mobilevikin07-21&ascsubtag=127214";
+const referralTag = "mobilevikin07-21";
 
-    // Check if the current URL matches the bol.com homepage
-    if (window.location.href === "https://www.amazon.com.be/") {
-        // Redirect to the target URL
-        window.location.href = targetURL;
+const url = new URL(window.location.href);
+
+// Alleen uitvoeren op amazon.com.be
+if (
+    url.hostname === "www.amazon.com.be" ||
+    url.hostname === "amazon.com.be"
+) {
+    // Voeg de tag toe of overschrijf bestaande tag
+    url.searchParams.set("tag", referralTag);
+
+    // Alleen redirecten als de URL veranderd is
+    if (window.location.href !== url.toString()) {
+        window.location.replace(url.toString());
     }
-})();
-// Free mobile viking points with this referrer link
+}
