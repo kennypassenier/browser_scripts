@@ -328,13 +328,13 @@ const setupSidebarToggle = () => {
     log.info('Sidebar toggle added');
 };
 
-// Runs on every old.reddit.com page before any page-specific setup.
+// Runs on every page before any page-specific setup.
 const runUniversal = () => {
     injectStyles();
     simplifyUserHeader(document.querySelector("span.user"));
     setupSidebarToggle();
     clickShowImages();
-    log.info('setupOldReddit: done');
+    log.info('runUniversal: done');
 };
 
 // ─── Page functions ───────────────────────────────────────────────────────────
@@ -346,11 +346,11 @@ const redirectToOldReddit = () => {
     location.replace(location.protocol + '//old.reddit.com' + location.pathname + location.search);
 };
 
-// Runs on a reddit comments page (old.reddit.com/r/*/comments/*).
+// Runs on a comments thread (/r/*/comments/*).
 // Removes embedded comment previews and inline child-comment toggles, flags rickroll links.
-// setupOldReddit() always runs first and handles styles, header, sidebar, and images.
+// runUniversal() always runs first and handles styles, header, sidebar, and images.
 const runComments = () => {
-    log.info('setupCommentsPage: starting');
+    log.info('runComments: starting');
     removeParentOfAllNodes(document.querySelectorAll(".embed-comment"));
     removeParentOfAllNodes(document.querySelectorAll(".toggleChildren"));
 
@@ -362,15 +362,15 @@ const runComments = () => {
             rickrollCount++;
         }
     }
-    if (rickrollCount > 0) log.warn(`setupCommentsPage: flagged ${rickrollCount} rickroll link(s)`);
-    log.info('setupCommentsPage: done');
+    if (rickrollCount > 0) log.warn(`runComments: flagged ${rickrollCount} rickroll link(s)`);
+    log.info('runComments: done');
 };
 
-// Runs on the reddit listing page (frontpage, subreddit, multireddit) on old.reddit.com.
+// Runs on a listing page (frontpage, subreddit, multireddit).
 // Handles listing-specific concerns: auto-login via RES and enlarged pagination buttons.
-// setupOldReddit() always runs first and handles styles, header, sidebar, and images.
+// runUniversal() always runs first and handles styles, header, sidebar, and images.
 const runPostListing = () => {
-    log.info('setupRedditPage: starting');
+    log.info('runPostListing: starting');
 
     // If not logged in, open the RES account switcher dropdown and click the first account.
     const loginUser = async () => {
@@ -387,12 +387,12 @@ const runPostListing = () => {
 
     loginUser();
     changeNavigationButtons();
-    log.info('setupRedditPage: done');
+    log.info('runPostListing: done');
 };
 
 // The personal content filtering layer — runs on all listing pages.
-// Called from the router on old.reddit.com listing pages, and as the sole handler for other subdomains.
 // Only activates on listing pages (frontpage and subreddits); skips comments pages,
+// user profiles, message inboxes, preferences, and any other non-listing URL.
 // user profiles, message inboxes, preferences, and any other non-listing URL.
 // Adds "Filter" and "Hide posts" buttons to the header, colours external links by domain
 // (paywall/trash/fixed), and hides posts matching the title/author/flair block lists.
@@ -700,8 +700,9 @@ if (CONFIG.debug) {
         config: CONFIG,
         Post,
         redirectToOldReddit,
-        setupCommentsPage: runComments,
-        setupRedditPage: runPostListing,
+        runUniversal,
+        runComments,
+        runPostListing,
         applyPostFilters,
         cleanLocalStorage,
         changeNavigationButtons,
