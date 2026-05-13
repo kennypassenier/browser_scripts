@@ -372,7 +372,7 @@ const runUniversal = () => {
 // This is the only place in the script that references old reddit by name.
 const redirectToOldReddit = () => {
   log.info(`Redirecting ${location.host} → old.reddit.com`);
-  location.replace(`${location.protocol  }//old.reddit.com${  location.pathname  }${location.search}`);
+  location.replace(`${location.protocol}//old.reddit.com${location.pathname}${location.search}`);
 };
 
 // Runs on a comments thread (/r/*/comments/*).

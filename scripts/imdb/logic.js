@@ -6,7 +6,7 @@ function removeMobileLink() {
 
   if (host.startsWith(`m.`)) {
     host = host.substr(2);
-    const newPath = `${window.location.protocol  }//${  host  }${window.location.pathname}`;
+    const newPath = `${window.location.protocol}//${host}${window.location.pathname}`;
     window.location = newPath;
   }
 }
@@ -15,7 +15,7 @@ function getPageNumberInfo() {
   let [currentPage, maxPages] = document.querySelector(`[role=presentation] > span`).nextSibling.textContent.split(` of `);
   currentPage = parseInt(currentPage);
   maxPages = parseInt(maxPages);
-  console.log(`Current page: ${  currentPage  }/${  maxPages}`);
+  console.log(`Current page: ${currentPage}/${maxPages}`);
   return [currentPage, maxPages];
 }
 
