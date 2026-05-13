@@ -3,10 +3,11 @@
 // Runs on all reddit.com subdomains via Tampermonkey.
 //
 // Route map:
-//   www.reddit.com          → redirectToOldReddit() — bounces immediately to old.reddit.com
-//   old.reddit.com/comments → setupCommentsPage()   — dark theme + comment cleanup
-//   old.reddit.com/*        → setupRedditPage()     — dark theme + sidebar + auto-login
-//   *.reddit.com            → applyPostFilters()    — personal post filter (hide/classify)
+//   www.reddit.com          → redirectToOldReddit()
+//   old.reddit.com/*        → setupOldReddit()        — always: styles, header, sidebar, images
+//   old.reddit.com/comments →   + setupCommentsPage() — comment cleanup
+//   old.reddit.com/listing  →   + setupRedditPage() + applyPostFilters()
+//   *.reddit.com            → applyPostFilters()      — other subdomains
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -328,6 +329,15 @@ const setupSidebarToggle = () => {
     log.info('Sidebar toggle added');
 };
 
+// Runs on every old.reddit.com page before any page-specific setup.
+const setupOldReddit = () => {
+    injectStyles();
+    simplifyUserHeader(document.querySelector("span.user"));
+    setupSidebarToggle();
+    clickShowImages();
+    log.info('setupOldReddit: done');
+};
+
 // ─── Page functions ───────────────────────────────────────────────────────────
 
 // www.reddit.com is just a redirect shell — all customizations live on old.reddit.com.
@@ -337,12 +347,10 @@ const redirectToOldReddit = () => {
 };
 
 // Runs on a reddit comments page (old.reddit.com/r/*/comments/*).
-// Injects the dark theme, strips header noise, removes embedded comment previews
-// and inline child-comment toggles, flags rickroll links, and sets up the sidebar toggle.
+// Removes embedded comment previews and inline child-comment toggles, flags rickroll links.
+// setupOldReddit() always runs first and handles styles, header, sidebar, and images.
 const setupCommentsPage = () => {
     log.info('setupCommentsPage: starting');
-    injectStyles();
-    simplifyUserHeader(document.querySelector("span.user"));
     removeParentOfAllNodes(document.querySelectorAll(".embed-comment"));
     removeParentOfAllNodes(document.querySelectorAll(".toggleChildren"));
 
@@ -355,15 +363,12 @@ const setupCommentsPage = () => {
         }
     }
     if (rickrollCount > 0) log.warn(`setupCommentsPage: flagged ${rickrollCount} rickroll link(s)`);
-
-    setupSidebarToggle();
-    clickShowImages();
     log.info('setupCommentsPage: done');
 };
 
 // Runs on the reddit listing page (frontpage, subreddit, multireddit) on old.reddit.com.
-// Injects the dark theme, strips header noise, adds the sidebar toggle, auto-clicks
-// RES show-images, auto-logs in via RES if not logged in, and enlarges the pagination buttons.
+// Handles listing-specific concerns: auto-login via RES and enlarged pagination buttons.
+// setupOldReddit() always runs first and handles styles, header, sidebar, and images.
 const setupRedditPage = () => {
     log.info('setupRedditPage: starting');
 
@@ -380,18 +385,13 @@ const setupRedditPage = () => {
         log.info('loginUser: auto-login triggered');
     };
 
-    injectStyles();
-    simplifyUserHeader(document.querySelector("span.user"));
-    setupSidebarToggle();
-    clickShowImages();
     loginUser();
     changeNavigationButtons();
-    applyPostFilters();
     log.info('setupRedditPage: done');
 };
 
-// Runs on all non-old.reddit.com subdomains — the personal content filtering layer.
-// On old.reddit.com, this is called directly from setupRedditPage instead.
+// The personal content filtering layer — runs on all listing pages.
+// Called from the router on old.reddit.com listing pages, and as the sole handler for other subdomains.
 // Only activates on listing pages (frontpage and subreddits); skips comments pages,
 // user profiles, message inboxes, preferences, and any other non-listing URL.
 // Adds "Filter" and "Hide posts" buttons to the header, colours external links by domain
@@ -509,21 +509,21 @@ const applyPostFilters = () => {
 };
 
 // ─── Router ───────────────────────────────────────────────────────────────────
-// Evaluated top-to-bottom; first matching route wins.
+// www redirect is exclusive. For old.reddit.com the universal setup always runs first,
+// then the page-specific layer, then the filtering layer on listing pages.
 
-const routes = [
-    { match: () => location.host.startsWith('www.'), run: redirectToOldReddit },
-    { match: () => location.host === 'old.reddit.com' && /\/comments\//.test(location.pathname), run: setupCommentsPage },
-    { match: () => location.host === 'old.reddit.com', run: setupRedditPage },
-    { match: () => true, run: applyPostFilters },
-];
-
-const matchedRoute = routes.find(r => r.match());
-if (!matchedRoute) {
-    log.warn('Router: no matching route for', location.href);
+if (location.host.startsWith('www.')) {
+    redirectToOldReddit();
+} else if (location.host === 'old.reddit.com') {
+    setupOldReddit();
+    if (/\/comments\//.test(location.pathname)) {
+        setupCommentsPage();
+    } else {
+        setupRedditPage();
+        applyPostFilters();
+    }
 } else {
-    log.info(`Router: matched → ${matchedRoute.run.name}()`);
-    matchedRoute.run();
+    applyPostFilters();
 }
 
 // ─── Debug harness ────────────────────────────────────────────────────────────
@@ -616,7 +616,7 @@ if (CONFIG.debug) {
             ],
         },
         {
-            group: 'reddit.com (non-old) — listing pages only',
+            group: 'All listing pages (frontpage, /r/*, r/all, r/popular)',
             items: [
                 {
                     feature: 'Filter button added to header',
