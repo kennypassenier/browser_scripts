@@ -108,6 +108,18 @@ const TRASH_SITES = [
 
 const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Calls callback(element) immediately if the element is already in the DOM,
+// otherwise sets up a MutationObserver and calls it the moment it appears.
+const waitForElement = (selector, callback) => {
+    const el = document.querySelector(selector);
+    if (el) { callback(el); return; }
+    const observer = new MutationObserver(() => {
+        const el = document.querySelector(selector);
+        if (el) { observer.disconnect(); callback(el); }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+};
+
 const generateSeparator = () => {
     const sep = document.createElement("span");
     sep.textContent = " | ";
@@ -149,24 +161,13 @@ const getPostElement = (el) => el.closest('.thing');
 
 // Replaces the default plain-text next/prev page links at the bottom of a listing
 // with large <<< / >>> arrows, making them easier to click.
-// Uses a short delay because old Reddit renders the nav bar slightly after the page loads.
-const changeNavigationButtons = () => {
-    setTimeout(() => {
-        const parent = document.querySelector(".nextprev");
-        if (!parent) return;
-        const next = document.querySelector(".next-button");
-        const prev = document.querySelector(".prev-button");
-        parent.textContent = "";
-        if (prev) {
-            prev.querySelector("a").textContent = "<<<";
-            parent.append(prev);
-        }
-        if (next) {
-            next.querySelector("a").textContent = ">>>";
-            parent.append(next);
-        }
-    }, 1000);
-};
+const changeNavigationButtons = () => waitForElement(".nextprev", parent => {
+    const next = document.querySelector(".next-button");
+    const prev = document.querySelector(".prev-button");
+    parent.textContent = "";
+    if (prev) { prev.querySelector("a").textContent = "<<<"; parent.append(prev); }
+    if (next) { next.querySelector("a").textContent = ">>>"; parent.append(next); }
+});
 
 // Removes entries from the "hiddenPosts" localStorage key that are older than
 // LOCALSTORAGE_TTL. Keeps the stored list from growing indefinitely.
@@ -183,13 +184,8 @@ const cleanLocalStorage = () => {
 // Old Reddit's sidebar takes up a lot of horizontal space and is rarely needed.
 // This adds a "Sidebar" link to the top-right header that shows/hides it on demand.
 // RES (Reddit Enhancement Suite) adds a "show images" button to the listing header.
-// A short delay is needed because RES injects it slightly after page load.
-// Works on both the frontpage and comments page.
-const clickShowImages = async () => {
-    await timeout(100);
-    const btn = document.querySelector(".res-show-images a");
-    if (btn) btn.click();
-};
+// Clicks it the moment it appears in the DOM. Works on frontpage and comments page.
+const clickShowImages = () => waitForElement(".res-show-images a", btn => btn.click());
 
 // The sidebar starts hidden. The link gets a strikethrough when the sidebar is hidden
 // (strikethrough = "this thing is off"), consistent with the Filter toggle in runModernFrontpage.
@@ -325,22 +321,12 @@ function runCommentsPage() {
 // - Auto-logs in using the first account in the RES account switcher, if not already logged in
 function runFrontpage() {
     // If Reddit shows a login link (i.e. we're not logged in), open the RES account
-    // switcher dropdown and click the first account to auto-login. The interval polls
-    // because the RES dropdown renders asynchronously after the icon is clicked.
+    // switcher dropdown and click the first account to auto-login.
     const loginUser = () => {
         const userSpan = document.querySelector("#header-bottom-right span");
-        const loginLink = userSpan.querySelector("a.login-link");
-        if (loginLink) {
-            const switcher = userSpan.querySelector("#RESAccountSwitcherIcon");
-            switcher.click();
-            const inter = setInterval(() => {
-                const accountItem = document.querySelector(".RESHover.RESHoverDropdownList ul li");
-                if (accountItem) {
-                    accountItem.click();
-                    clearInterval(inter);
-                }
-            }, 20);
-        }
+        if (!userSpan.querySelector("a.login-link")) return;
+        userSpan.querySelector("#RESAccountSwitcherIcon").click();
+        waitForElement(".RESHover.RESHoverDropdownList ul li", item => item.click());
     };
 
     injectStyles();
