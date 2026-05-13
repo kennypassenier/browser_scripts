@@ -438,8 +438,24 @@ const applyPostFilters = () => {
         let hiddenCount = 0, filteredCount = 0;
         for (const post of Post.getAll()) {
             if (!post.id) continue;
-            if (post.isHiddenIn(hiddenList)) { post.hide(); hiddenCount++; continue; }
-            if (post.isBlocked) { filterIsActive ? post.hide() : post.show(); filteredCount++; }
+            if (post.isHiddenIn(hiddenList)) {
+                post.hide();
+                hiddenCount++;
+                if (CONFIG.debug) log.info(`filterEntries [hidden] "${post.title}"`);
+                continue;
+            }
+            if (post.isBlocked) {
+                filterIsActive ? post.hide() : post.show();
+                filteredCount++;
+                if (CONFIG.debug) {
+                    const reasons = [
+                        post.isTitleBlocked     && `title`,
+                        post.isAuthorBlocked    && `author:${post.author}`,
+                        post.isFlairBlocked     && `flair:${post.flair}`,
+                    ].filter(Boolean).join(', ');
+                    log.info(`filterEntries [blocked (${reasons})] "${post.title}"`);
+                }
+            }
         }
         log.info(`filterEntries: ${hiddenCount} permanently hidden, ${filteredCount} filtered (filter ${filterIsActive ? 'on' : 'off'})`);
     };
@@ -447,7 +463,11 @@ const applyPostFilters = () => {
     const filterSubreddit = () => {
         let count = 0;
         for (const post of Post.getAll()) {
-            if (post.isSubredditBlocked) { post.hide(); count++; }
+            if (post.isSubredditBlocked) {
+                post.hide();
+                count++;
+                if (CONFIG.debug) log.info(`filterSubreddit [blocked] r/${post.subreddit} — "${post.title}"`);
+            }
         }
         log.info(`filterSubreddit: ${count} posts hidden by subreddit`);
     };
