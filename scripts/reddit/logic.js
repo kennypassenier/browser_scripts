@@ -153,7 +153,7 @@ const simplifyUserHeader = (el) => {
     el.appendChild(accountSwitcher);
 };
 
-// Old Reddit wraps each post in a <div class="thing">. This reaches it from any descendant.
+// Reddit wraps each post in a <div class="thing">. This reaches it from any descendant.
 const getPostElement = (el) => el.closest('.thing');
 
 // Post wraps a .thing DOM element with typed properties and action methods.
@@ -306,8 +306,8 @@ const runCommentsPage = () => {
     clickShowImages();
 };
 
-// Sets up the old Reddit listing page (frontpage or subreddit).
-const runFrontpage = () => {
+// Sets up the Reddit listing page (frontpage or subreddit).
+const runListing = () => {
     // If not logged in, open the RES account switcher dropdown and click the first account.
     const loginUser = async () => {
         const userSpan = document.querySelector("#header-bottom-right span");
@@ -328,7 +328,7 @@ const runFrontpage = () => {
 // Custom filtering layer for the Reddit frontpage listing.
 // Adds "Filter" and "Hide posts" buttons, classifies links by domain, filters posts
 // by title/author/flair, and persists hidden posts in localStorage (72h TTL).
-const runModernFrontpage = () => {
+const runFrontpage = () => {
     if (/\/comments\//.test(location.pathname)) return;
 
     let filterIsActive = true;
@@ -409,8 +409,8 @@ const runModernFrontpage = () => {
 const routes = [
     { match: () => location.host.startsWith('www.'),                                             run: runRedirect },
     { match: () => location.host === 'old.reddit.com' && /\/comments\//.test(location.pathname), run: runCommentsPage },
-    { match: () => location.host === 'old.reddit.com',                                           run: runFrontpage },
-    { match: () => true,                                                                          run: runModernFrontpage },
+    { match: () => location.host === 'old.reddit.com',                                           run: runListing },
+    { match: () => true,                                                                          run: runFrontpage },
 ];
 
 routes.find(r => r.match()).run();
