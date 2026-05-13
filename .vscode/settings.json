@@ -1,5 +1,11 @@
 {
     "chat.tools.terminal.autoApprove": {
         ".\\monkey-manager.exe": true
-    }
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "eslint.validate": [
+        "javascript"
+    ]
 }

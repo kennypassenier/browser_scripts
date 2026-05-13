@@ -722,4 +722,4 @@ if (CONFIG.debug) {
 }
 
 let a = `test`;
-let test = `hello` + `fun${  a}`;
+let test = `hello` + `fun${a}`;
