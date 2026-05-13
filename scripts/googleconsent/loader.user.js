@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googleconsent
 // @namespace    Custom.Automation
-// @version      1778551706
+// @version      1778670085
 // @description  
 // @author       Kenny
 // @match        *://consent.google.com
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/googleconsent/logic.js?v=1778551706
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/googleconsent/logic.js?v=1778670085
 // ==/UserScript==

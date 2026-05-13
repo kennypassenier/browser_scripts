@@ -11,7 +11,7 @@
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const CONFIG = {
-    debug: false,            // Set true to enable verbose logging and expose window._reddit
+    debug: true,            // Set true to enable verbose logging and expose window._reddit
     paywallService: "https://www.smry.ai/proxy?url=",
     localStorageTtl: 1000 * 60 * 60 * 72, // 72 hours
 
@@ -37,17 +37,17 @@ const CONFIG = {
             allowed: ["r/wholesomememes"],
         },
         authors: ["mekyas23", "cooperationapples", "noveljazzlike9473"],
-        flairs:  ["mourning/loss", "rainbow bridge", "pet loss", "trump news"],
+        flairs: ["mourning/loss", "rainbow bridge", "pet loss", "trump news"],
     },
 
     sites: {
-        fixed:   ["www.nytimes.com"],
+        fixed: ["www.nytimes.com"],
         paywall: [
             "www.forbes.com", "www.wjtv.com", "www.independent.co.uk",
             "www.theguardian.com", "www.wusa9.com", "www.theatlantic.com",
             "www.washingtonpost.com",
         ],
-        trash:   ["nypost.com"],
+        trash: ["nypost.com"],
     },
 };
 
@@ -55,8 +55,8 @@ const CONFIG = {
 // Namespaced console wrapper. log.info is silenced unless CONFIG.debug is true.
 
 const log = {
-    info:  (...args) => CONFIG.debug && console.log('[reddit]', ...args),
-    warn:  (...args) => console.warn('[reddit]', ...args),
+    info: (...args) => CONFIG.debug && console.log('[reddit]', ...args),
+    warn: (...args) => console.warn('[reddit]', ...args),
     error: (...args) => console.error('[reddit]', ...args),
 };
 
@@ -179,13 +179,13 @@ const simplifyUserHeader = (el) => {
 // All querySelector calls happen once at construction time, keeping loops clean.
 class Post {
     constructor(el) {
-        this.el        = el;
-        this.id        = el.dataset.fullname;
-        this.author    = el.dataset.author?.toLowerCase() ?? "";
-        this.url       = el.dataset.url ?? "";
+        this.el = el;
+        this.id = el.dataset.fullname;
+        this.author = el.dataset.author?.toLowerCase() ?? "";
+        this.url = el.dataset.url ?? "";
         this.titleLink = el.querySelector(".title > a");
-        this.title     = this.titleLink?.textContent ?? "";
-        this.flair     = el.querySelector(".flairrichtext")?.title ?? "";
+        this.title = this.titleLink?.textContent ?? "";
+        this.flair = el.querySelector(".flairrichtext")?.title ?? "";
         this.subreddit = el.querySelector(".subreddit")?.textContent?.toLowerCase() ?? "";
     }
 
@@ -197,9 +197,9 @@ class Post {
         try { return new URL(this.url).hostname; }
         catch { log.warn(`Post: invalid URL "${this.url}" on post ${this.id}`); return null; }
     }
-    get isTitleBlocked()     { return matchesBlockList(this.title, CONFIG.filter.titles); }
-    get isAuthorBlocked()    { return CONFIG.filter.authors.includes(this.author); }
-    get isFlairBlocked()     { return this.flair.length > 0 && matchesBlockList(this.flair, CONFIG.filter.flairs); }
+    get isTitleBlocked() { return matchesBlockList(this.title, CONFIG.filter.titles); }
+    get isAuthorBlocked() { return CONFIG.filter.authors.includes(this.author); }
+    get isFlairBlocked() { return this.flair.length > 0 && matchesBlockList(this.flair, CONFIG.filter.flairs); }
     get isSubredditBlocked() {
         return matchesBlockList(this.subreddit, CONFIG.filter.subreddits.blocked)
             && !CONFIG.filter.subreddits.allowed.includes(this.subreddit);
@@ -217,8 +217,8 @@ class Post {
         if (!this.isExternal || !this.titleLink) return;
         const { hostname } = this;
         if (!hostname) return;
-        if (CONFIG.sites.fixed.includes(hostname))   this.titleLink.classList.add("fixedSite");
-        if (CONFIG.sites.trash.includes(hostname))   this.titleLink.classList.add("trashSite");
+        if (CONFIG.sites.fixed.includes(hostname)) this.titleLink.classList.add("fixedSite");
+        if (CONFIG.sites.trash.includes(hostname)) this.titleLink.classList.add("trashSite");
         if (CONFIG.sites.paywall.includes(hostname)) {
             this.titleLink.classList.add("paywall");
             this.titleLink.href = `${CONFIG.paywallService}${this.url}`;
@@ -303,9 +303,9 @@ const cleanLocalStorage = () => {
 // The link starts with a strikethrough (sidebar is hidden by default).
 const setupSidebarToggle = () => {
     const sidebar = document.querySelector(".side");
-    const header  = document.querySelector("#header-bottom-right");
+    const header = document.querySelector("#header-bottom-right");
     if (!sidebar) { log.warn('setupSidebarToggle: sidebar (.side) not found'); return; }
-    if (!header)  { log.warn('setupSidebarToggle: header (#header-bottom-right) not found'); return; }
+    if (!header) { log.warn('setupSidebarToggle: header (#header-bottom-right) not found'); return; }
 
     const sidebarLink = document.createElement("a");
     sidebarLink.id = "sidebarToggle";
@@ -449,9 +449,9 @@ const applyPostFilters = () => {
                 filteredCount++;
                 if (CONFIG.debug) {
                     const reasons = [
-                        post.isTitleBlocked     && `title`,
-                        post.isAuthorBlocked    && `author:${post.author}`,
-                        post.isFlairBlocked     && `flair:${post.flair}`,
+                        post.isTitleBlocked && `title`,
+                        post.isAuthorBlocked && `author:${post.author}`,
+                        post.isFlairBlocked && `flair:${post.flair}`,
                     ].filter(Boolean).join(', ');
                     log.info(`filterEntries [blocked (${reasons})] "${post.title}"`);
                 }
@@ -475,10 +475,10 @@ const applyPostFilters = () => {
     // ── Bootstrap ─────────────────────────────────────────────────────────────
 
     addCustomMenu();
-    const filterToggle  = document.querySelector("#filterToggle");
+    const filterToggle = document.querySelector("#filterToggle");
     const hideAllButton = document.querySelector("#hideAllButton");
 
-    if (!filterToggle)  log.warn('applyPostFilters: #filterToggle not found after addCustomMenu');
+    if (!filterToggle) log.warn('applyPostFilters: #filterToggle not found after addCustomMenu');
     if (!hideAllButton) log.warn('applyPostFilters: #hideAllButton not found after addCustomMenu');
 
     filterToggle?.addEventListener("click", async (e) => {
@@ -510,10 +510,10 @@ const applyPostFilters = () => {
 // Evaluated top-to-bottom; first matching route wins.
 
 const routes = [
-    { match: () => location.host.startsWith('www.'),                                             run: redirectToOldReddit },
+    { match: () => location.host.startsWith('www.'), run: redirectToOldReddit },
     { match: () => location.host === 'old.reddit.com' && /\/comments\//.test(location.pathname), run: setupCommentsPage },
-    { match: () => location.host === 'old.reddit.com',                                           run: setupRedditPage },
-    { match: () => true,                                                                          run: applyPostFilters },
+    { match: () => location.host === 'old.reddit.com', run: setupRedditPage },
+    { match: () => true, run: applyPostFilters },
 ];
 
 const matchedRoute = routes.find(r => r.match());
@@ -540,9 +540,9 @@ if (CONFIG.debug) {
             group: 'www.reddit.com',
             items: [
                 {
-                    feature:  'Redirect to old.reddit.com',
-                    url:      'https://www.reddit.com/',
-                    expect:   'Browser immediately lands on https://old.reddit.com/',
+                    feature: 'Redirect to old.reddit.com',
+                    url: 'https://www.reddit.com/',
+                    expect: 'Browser immediately lands on https://old.reddit.com/',
                 },
             ],
         },
@@ -550,35 +550,35 @@ if (CONFIG.debug) {
             group: 'old.reddit.com — all pages',
             items: [
                 {
-                    feature:  'Dark theme applied',
-                    url:      'https://old.reddit.com/',
-                    expect:   'Background is black, text is white',
+                    feature: 'Dark theme applied',
+                    url: 'https://old.reddit.com/',
+                    expect: 'Background is black, text is white',
                 },
                 {
-                    feature:  'User header simplified',
-                    url:      'https://old.reddit.com/',
-                    expect:   'Top-right user area shows only username + RES switcher icon, no karma numbers',
+                    feature: 'User header simplified',
+                    url: 'https://old.reddit.com/',
+                    expect: 'Top-right user area shows only username + RES switcher icon, no karma numbers',
                 },
                 {
-                    feature:  'Sidebar hidden by default',
-                    url:      'https://old.reddit.com/',
-                    expect:   'Right sidebar is not visible on page load',
+                    feature: 'Sidebar hidden by default',
+                    url: 'https://old.reddit.com/',
+                    expect: 'Right sidebar is not visible on page load',
                 },
                 {
-                    feature:  'Sidebar toggle button',
-                    url:      'https://old.reddit.com/',
-                    expect:   '"Sidebar" link appears in top-right header with strikethrough; click toggles sidebar visibility',
+                    feature: 'Sidebar toggle button',
+                    url: 'https://old.reddit.com/',
+                    expect: '"Sidebar" link appears in top-right header with strikethrough; click toggles sidebar visibility',
                 },
                 {
-                    feature:  'Show images auto-clicked (RES)',
-                    url:      'https://old.reddit.com/',
-                    expect:   'Post images expand automatically without manually clicking "show images"',
-                    note:     'Requires Reddit Enhancement Suite to be installed',
+                    feature: 'Show images auto-clicked (RES)',
+                    url: 'https://old.reddit.com/',
+                    expect: 'Post images expand automatically without manually clicking "show images"',
+                    note: 'Requires Reddit Enhancement Suite to be installed',
                 },
                 {
-                    feature:  'Navigation buttons enlarged',
-                    url:      'https://old.reddit.com/',
-                    expect:   'Bottom of listing shows large "<<<" and ">>>" buttons instead of small text links',
+                    feature: 'Navigation buttons enlarged',
+                    url: 'https://old.reddit.com/',
+                    expect: 'Bottom of listing shows large "<<<" and ">>>" buttons instead of small text links',
                 },
             ],
         },
@@ -586,10 +586,10 @@ if (CONFIG.debug) {
             group: 'old.reddit.com — listing page only',
             items: [
                 {
-                    feature:  'Auto-login via RES',
-                    url:      'https://old.reddit.com/ (while logged out)',
-                    expect:   'RES account switcher opens and first account is clicked automatically',
-                    note:     'Only triggers when a login link is detected in the header',
+                    feature: 'Auto-login via RES',
+                    url: 'https://old.reddit.com/ (while logged out)',
+                    expect: 'RES account switcher opens and first account is clicked automatically',
+                    note: 'Only triggers when a login link is detected in the header',
                 },
             ],
         },
@@ -597,19 +597,19 @@ if (CONFIG.debug) {
             group: 'old.reddit.com — comments page',
             items: [
                 {
-                    feature:  'Embedded comment previews removed',
-                    url:      'Any https://old.reddit.com/r/*/comments/* thread',
-                    expect:   'No inline .embed-comment blocks visible in the thread',
+                    feature: 'Embedded comment previews removed',
+                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
+                    expect: 'No inline .embed-comment blocks visible in the thread',
                 },
                 {
-                    feature:  'Child comment toggles removed',
-                    url:      'Any https://old.reddit.com/r/*/comments/* thread',
-                    expect:   'No "show child comments" inline toggles visible',
+                    feature: 'Child comment toggles removed',
+                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
+                    expect: 'No "show child comments" inline toggles visible',
                 },
                 {
-                    feature:  'Rickroll links flagged',
-                    url:      'Any thread containing a youtu.be/dQw4w9WgXcQ link',
-                    expect:   'Link text replaced with "--> RICKROLL <--"',
+                    feature: 'Rickroll links flagged',
+                    url: 'Any thread containing a youtu.be/dQw4w9WgXcQ link',
+                    expect: 'Link text replaced with "--> RICKROLL <--"',
                 },
             ],
         },
@@ -617,57 +617,57 @@ if (CONFIG.debug) {
             group: 'reddit.com (non-old) — listing pages only',
             items: [
                 {
-                    feature:  'Filter button added to header',
-                    url:      'https://www.reddit.com/r/all/ (after redirect resolves to old)',
-                    expect:   '"Filter" link appears in top-right header',
-                    cmd:      '!!document.getElementById("filterToggle")',
+                    feature: 'Filter button added to header',
+                    url: 'https://www.reddit.com/r/all/ (after redirect resolves to old)',
+                    expect: '"Filter" link appears in top-right header',
+                    cmd: '!!document.getElementById("filterToggle")',
                 },
                 {
-                    feature:  'Hide posts button added to header',
-                    url:      'Same as above',
-                    expect:   '"Hide posts" link appears in top-right header',
-                    cmd:      '!!document.getElementById("hideAllButton")',
+                    feature: 'Hide posts button added to header',
+                    url: 'Same as above',
+                    expect: '"Hide posts" link appears in top-right header',
+                    cmd: '!!document.getElementById("hideAllButton")',
                 },
                 {
-                    feature:  'Filter toggle hides blocked posts',
-                    url:      'https://old.reddit.com/r/all/',
-                    expect:   'Posts matching title/author/flair block lists are hidden; clicking "Filter" shows/hides them',
-                    cmd:      'window._reddit.Post.getAll().filter(p => p.isBlocked)',
+                    feature: 'Filter toggle hides blocked posts',
+                    url: 'https://old.reddit.com/r/all/',
+                    expect: 'Posts matching title/author/flair block lists are hidden; clicking "Filter" shows/hides them',
+                    cmd: 'window._reddit.Post.getAll().filter(p => p.isBlocked)',
                 },
                 {
-                    feature:  'Subreddit filter hides blocked subreddits',
-                    url:      'https://old.reddit.com/r/all/',
-                    expect:   'Posts from blocked subreddits (e.g. r/meme, r/anime) are hidden',
-                    cmd:      'window._reddit.Post.getAll().filter(p => p.isSubredditBlocked)',
+                    feature: 'Subreddit filter hides blocked subreddits',
+                    url: 'https://old.reddit.com/r/all/',
+                    expect: 'Posts from blocked subreddits (e.g. r/meme, r/anime) are hidden',
+                    cmd: 'window._reddit.Post.getAll().filter(p => p.isSubredditBlocked)',
                 },
                 {
-                    feature:  'Paywall links rerouted',
-                    url:      'https://old.reddit.com/r/all/ (find a Forbes/Guardian/etc post)',
-                    expect:   'Title link href starts with the smry.ai proxy URL; link is blue',
-                    cmd:      'window._reddit.Post.getAll().filter(p => p.hostname && CONFIG.sites.paywall.includes(p.hostname))',
+                    feature: 'Paywall links rerouted',
+                    url: 'https://old.reddit.com/r/all/ (find a Forbes/Guardian/etc post)',
+                    expect: 'Title link href starts with the smry.ai proxy URL; link is blue',
+                    cmd: 'window._reddit.Post.getAll().filter(p => p.hostname && CONFIG.sites.paywall.includes(p.hostname))',
                 },
                 {
-                    feature:  'Trash site links dimmed',
-                    url:      'https://old.reddit.com/r/all/ (find a NY Post link)',
-                    expect:   'Title link has dark green colour (.trashSite class)',
-                    cmd:      'window._reddit.Post.getAll().filter(p => p.hostname && CONFIG.sites.trash.includes(p.hostname))',
+                    feature: 'Trash site links dimmed',
+                    url: 'https://old.reddit.com/r/all/ (find a NY Post link)',
+                    expect: 'Title link has dark green colour (.trashSite class)',
+                    cmd: 'window._reddit.Post.getAll().filter(p => p.hostname && CONFIG.sites.trash.includes(p.hostname))',
                 },
                 {
-                    feature:  'Fixed site links highlighted',
-                    url:      'https://old.reddit.com/r/all/ (find an NYTimes link)',
-                    expect:   'Title link is orange (.fixedSite class)',
-                    cmd:      'window._reddit.Post.getAll().filter(p => p.hostname && CONFIG.sites.fixed.includes(p.hostname))',
+                    feature: 'Fixed site links highlighted',
+                    url: 'https://old.reddit.com/r/all/ (find an NYTimes link)',
+                    expect: 'Title link is orange (.fixedSite class)',
+                    cmd: 'window._reddit.Post.getAll().filter(p => p.hostname && CONFIG.sites.fixed.includes(p.hostname))',
                 },
                 {
-                    feature:  'Hide posts persists across page loads',
-                    url:      'https://old.reddit.com/r/all/',
-                    expect:   'Click "Hide posts", reload the page — same posts remain hidden',
-                    cmd:      'window._reddit.Post.getHiddenList()',
+                    feature: 'Hide posts persists across page loads',
+                    url: 'https://old.reddit.com/r/all/',
+                    expect: 'Click "Hide posts", reload the page — same posts remain hidden',
+                    cmd: 'window._reddit.Post.getHiddenList()',
                 },
                 {
-                    feature:  'applyPostFilters skips non-listing pages',
-                    url:      'https://old.reddit.com/u/username or /message/inbox',
-                    expect:   'No "Filter" or "Hide posts" buttons appear in the header',
+                    feature: 'applyPostFilters skips non-listing pages',
+                    url: 'https://old.reddit.com/u/username or /message/inbox',
+                    expect: 'No "Filter" or "Hide posts" buttons appear in the header',
                 },
             ],
         },
@@ -675,29 +675,29 @@ if (CONFIG.debug) {
             group: 'Utilities / localStorage',
             items: [
                 {
-                    feature:  'Hidden posts expire after 72h',
-                    url:      'Any listing page',
-                    expect:   'Entries older than 72h are removed from hiddenPosts on next page load',
-                    cmd:      'window._reddit.cleanLocalStorage()',
+                    feature: 'Hidden posts expire after 72h',
+                    url: 'Any listing page',
+                    expect: 'Entries older than 72h are removed from hiddenPosts on next page load',
+                    cmd: 'window._reddit.cleanLocalStorage()',
                 },
                 {
-                    feature:  'Inspect all posts on current page',
-                    cmd:      'window._reddit.Post.getAll()',
+                    feature: 'Inspect all posts on current page',
+                    cmd: 'window._reddit.Post.getAll()',
                 },
                 {
-                    feature:  'Inspect hidden posts list',
-                    cmd:      'window._reddit.Post.getHiddenList()',
+                    feature: 'Inspect hidden posts list',
+                    cmd: 'window._reddit.Post.getHiddenList()',
                 },
                 {
-                    feature:  'Clear all hidden posts',
-                    cmd:      'localStorage.removeItem("hiddenPosts")',
+                    feature: 'Clear all hidden posts',
+                    cmd: 'localStorage.removeItem("hiddenPosts")',
                 },
             ],
         },
     ];
 
     window._reddit = {
-        config:  CONFIG,
+        config: CONFIG,
         Post,
         redirectToOldReddit,
         setupCommentsPage,
@@ -714,10 +714,10 @@ if (CONFIG.debug) {
                 console.group(`📋 ${group}`);
                 for (const item of items) {
                     const lines = [`  • ${item.feature}`];
-                    if (item.url)    lines.push(`      URL:    ${item.url}`);
+                    if (item.url) lines.push(`      URL:    ${item.url}`);
                     if (item.expect) lines.push(`      Expect: ${item.expect}`);
-                    if (item.note)   lines.push(`      Note:   ${item.note}`);
-                    if (item.cmd)    lines.push(`      Debug:  ${item.cmd}`);
+                    if (item.note) lines.push(`      Note:   ${item.note}`);
+                    if (item.cmd) lines.push(`      Debug:  ${item.cmd}`);
                     console.log(lines.join('\n'));
                 }
                 console.groupEnd();
