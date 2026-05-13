@@ -386,10 +386,12 @@ const setupRedditPage = () => {
     clickShowImages();
     loginUser();
     changeNavigationButtons();
+    applyPostFilters();
     log.info('setupRedditPage: done');
 };
 
 // Runs on all non-old.reddit.com subdomains — the personal content filtering layer.
+// On old.reddit.com, this is called directly from setupRedditPage instead.
 // Only activates on listing pages (frontpage and subreddits); skips comments pages,
 // user profiles, message inboxes, preferences, and any other non-listing URL.
 // Adds "Filter" and "Hide posts" buttons to the header, colours external links by domain
