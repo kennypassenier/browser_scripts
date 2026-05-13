@@ -173,24 +173,7 @@ fn create_project(config: &Config, root: &PathBuf) {
             .join("\n")
     };
 
-    // 6. Modules
-    let use_styles = Select::with_theme(&theme)
-        .with_prompt("Include styles module? (modules/styles.js → injectStyles)")
-        .items(&["Yes", "No"])
-        .default(0)
-        .interact()
-        .unwrap()
-        == 0;
-
-    let modules_require = if use_styles {
-        format!(
-            "// @require      https://raw.githubusercontent.com/{}/{}/refs/heads/main/modules/styles.js",
-            config.gh_user, config.gh_repo
-        )
-    } else {
-        String::new()
-    };
-
+    // 6. Modules — styles are always included
     // Processing files
     let timestamp = Utc::now().timestamp().to_string();
     let project_dir = root.join("scripts").join(&name);
@@ -206,7 +189,6 @@ fn create_project(config: &Config, root: &PathBuf) {
         .replace("{{VERSION}}", &timestamp)
         .replace("{{RUN_AT}}", run_at)
         .replace("{{GRANTS}}", &grants)
-        .replace("{{MODULES}}", &modules_require)
         .replace("{{GH_USER}}", &config.gh_user)
         .replace("{{GH_REPO}}", &config.gh_repo)
         .replace("{{GAT}}", &config.gat)
@@ -218,16 +200,26 @@ fn create_project(config: &Config, root: &PathBuf) {
 
     let logic_path = project_dir.join("logic.js");
     if !logic_path.exists() {
-        let styles_block = if use_styles {
-            "const STYLES = `\n\n`;\n\n"
-        } else {
-            ""
-        };
         let default_logic = format!(
-            "'use strict';\n\n{styles_block}console.log('{}  logic loaded');\n",
+            "'use strict';\n\nconsole.log('{}  logic loaded');\n",
             name
         );
         fs::write(logic_path, default_logic).expect("Failed to write logic file");
+    }
+
+    // Always create styles.css and an initial styles.generated.js
+    let css_path = project_dir.join("styles.css");
+    if !css_path.exists() {
+        fs::write(&css_path, "/* styles for ".to_string() + &name + " */\n")
+            .expect("Failed to write styles.css");
+    }
+    let generated_path = project_dir.join("styles.generated.js");
+    if !generated_path.exists() {
+        let css = fs::read_to_string(&css_path).unwrap_or_default();
+        let generated = format!(
+            "// AUTO-GENERATED — do not edit directly. Edit styles.css instead.\n'use strict';\nconst STYLES = `{css}`;\n"
+        );
+        fs::write(generated_path, generated).expect("Failed to write styles.generated.js");
     }
 
     println!("\nSuccess: Website '{}' setup complete.", name);
