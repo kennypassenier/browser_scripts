@@ -4,7 +4,7 @@
 //
 // Route map:
 //   www.reddit.com          → redirectToOldReddit() — bounces immediately to old.reddit.com
-//   old.reddit.com/comments → setupThreadPage()     — dark theme + comment thread cleanup
+//   old.reddit.com/comments → setupCommentsPage()     — dark theme + comment thread cleanup
 //   old.reddit.com/*        → setupRedditPage()     — dark theme + sidebar + auto-login
 //   *.reddit.com            → applyPostFilters()    — personal post filter (hide/classify)
 
@@ -288,10 +288,10 @@ const redirectToOldReddit = () => {
     location.replace(location.protocol + '//old.reddit.com' + location.pathname + location.search);
 };
 
-// Runs on a reddit thread page (old.reddit.com/r/*/comments/*).
+// Runs on a reddit comments page (old.reddit.com/r/*/comments/*).
 // Injects the dark theme, strips header noise, removes embedded comment previews
 // and inline child-comment toggles, flags rickroll links, and sets up the sidebar toggle.
-const setupThreadPage = () => {
+const setupCommentsPage = () => {
     injectStyles();
     simplifyUserHeader(document.querySelector("span.user"));
     removeParentOfAllNodes(document.querySelectorAll(".embed-comment"));
@@ -331,11 +331,15 @@ const setupRedditPage = () => {
 };
 
 // Runs on all non-old.reddit.com subdomains — the personal content filtering layer.
+// Only activates on listing pages (frontpage and subreddits); skips comments pages,
+// user profiles, message inboxes, preferences, and any other non-listing URL.
 // Adds "Filter" and "Hide posts" buttons to the header, colours external links by domain
 // (paywall/trash/fixed), and hides posts matching the title/author/flair block lists.
 // Posts marked via "Hide posts" are persisted in localStorage with a 72h TTL.
 const applyPostFilters = () => {
-    if (/\/comments\//.test(location.pathname)) return;
+    // Only run on listing pages: the frontpage (/) or a subreddit (/r/...), but not threads.
+    const isListingPage = /^\/$|^\/r\//.test(location.pathname) && !/\/comments\//.test(location.pathname);
+    if (!isListingPage) return;
 
     let filterIsActive = true;
 
@@ -415,7 +419,7 @@ const applyPostFilters = () => {
 
 const routes = [
     { match: () => location.host.startsWith('www.'),                                             run: redirectToOldReddit },
-    { match: () => location.host === 'old.reddit.com' && /\/comments\//.test(location.pathname), run: setupThreadPage },
+    { match: () => location.host === 'old.reddit.com' && /\/comments\//.test(location.pathname), run: setupCommentsPage },
     { match: () => location.host === 'old.reddit.com',                                           run: setupRedditPage },
     { match: () => true,                                                                          run: applyPostFilters },
 ];
