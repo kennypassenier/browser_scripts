@@ -1,10 +1,6 @@
 'use strict';
-GM_addStyle(`
-    .conflict,
-    .supportlinks {
-        display: none;
-    }
-`);
+
+injectStyles(`sudokupad-custom-styles`, STYLES);
 
 async function removeConflicts() {
   showMouseXY();

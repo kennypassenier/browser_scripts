@@ -200,10 +200,7 @@ fn create_project(config: &Config, root: &PathBuf) {
 
     let logic_path = project_dir.join("logic.js");
     if !logic_path.exists() {
-        let default_logic = format!(
-            "'use strict';\n\nconsole.log('{}  logic loaded');\n",
-            name
-        );
+        let default_logic = format!("'use strict';\n\nconsole.log('{}  logic loaded');\n", name);
         fs::write(logic_path, default_logic).expect("Failed to write logic file");
     }
 

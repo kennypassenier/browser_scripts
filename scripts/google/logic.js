@@ -1,35 +1,7 @@
 'use strict';
-function injectStyles() {
-  if (document.getElementById(`google-custom-styles`)) return;
-  const style = document.createElement(`style`);
-  style.id = `google-custom-styles`;
-  style.textContent = `
-        body,
-        a,
-        a:visited,
-        cite,
-        span,
-        .main,
-        #top_nav *,
-        #appbar,
-        #searchform *,
-        #footcnt *,
-        #wp-tabs-container,
-        div[role=heading] {
-            background-color: #374151;
-            color: #F3F4F6;
-            border: none;
-        }
-        #rso em,
-        #result-stats {
-            color: white;
-        }
-    `;
-  document.head.appendChild(style);
-}
 
 function main() {
-  injectStyles();
+  injectStyles(`google-custom-styles`, STYLES);
   const commands = [
     {
       name: `!bass`,

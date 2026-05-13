@@ -1,44 +1,145 @@
 // AUTO-GENERATED — do not edit directly. Edit styles.css instead.
 'use strict';
-const STYLES = `.fixedSite{ color: #DE781F !important; }
-.trashSite{ color: #253529 !important; }
-.paywall{ color: #1F85DE !important; }
-.strikeThrough{ text-decoration: line-through; color: white !important; }
-.animateLink{ animation-duration: 3s; animation-name: fadeIn; animation-timing-function: ease; }
-#NREMailCount[title="new mail!"]{
-    display: flex; width: 100%; min-width: 2rem;
-    justify-content: center; align-content: center; align-items: center;
-    color: black; font-size: 1.4rem; min-height: 1.5rem; font-family: Verdana;
+const STYLES = `.fixedSite {
+    color: #DE781F !important;
 }
-#NREMailCount:hover{ display: block; }
-.linkflairlabel{ font-size: 2vh; }
-.commentarea .midcol{ float: right; }
-.entry{ padding-left: 25px; }
-.commentarea .comment > .entry > .tagline > .expand{
-    padding: 10px !important; display: inline-block !important;
-    min-width: 2em !important; text-align: center !important;
+
+.trashSite {
+    color: #253529 !important;
 }
-div.res-expando-box{ background-color: transparent !important; }
-body, #sr-header-area, #RESShortcutsEditContainer > *, #RESShortcutsEditContainer,
-.debuginfo, .content, .res-expando-box, .top-matter{
-    background-color: black !important; color: white !important;
+
+.paywall {
+    color: #1F85DE !important;
 }
-p.debuginfo, .subbarlink, #srDropdownContainer a{ color: white !important; }
-div.nav-buttons{
-    display: flex; align-items: center; justify-content: center;
-    height: 10vh; width: 100vw; margin-top: 20vh; margin-bottom: 20vh;
+
+.strikeThrough {
+    text-decoration: line-through;
+    color: white !important;
 }
-span.next-button, span.prev-button{ margin: 2vh !important; padding: 2vh; }
-span.next-button a, span.prev-button a{
-    height: 100%; font-size: 8vh; background: black !important;
-    color: white !important; padding: 0.2vw;
+
+.animateLink {
+    animation-duration: 3s;
+    animation-name: fadeIn;
+    animation-timing-function: ease;
 }
-span.next-button a:hover, span.prev-button a:hover{ background: white; color: black; }
-@keyframes fadeIn { from { color: black; opacity: 0; } to { opacity: 1; } }
-.happening-now-wrap, span.score, .userattrs, span.score-hidden, .awardings-bar,
-.listing-chooser, .give-gold-button, .share, .save-button, .saveComments,
-.crosspost-button, .report-button, .footer-parent, .presence_circle,
-.infobar-toaster-container, #notifications, #chat-v2, .badge-count{
+
+#NREMailCount[title="new mail!"] {
+    display: flex;
+    width: 100%;
+    min-width: 2rem;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    color: black;
+    font-size: 1.4rem;
+    min-height: 1.5rem;
+    font-family: Verdana;
+}
+
+#NREMailCount:hover {
+    display: block;
+}
+
+.linkflairlabel {
+    font-size: 2vh;
+}
+
+.commentarea .midcol {
+    float: right;
+}
+
+.entry {
+    padding-left: 25px;
+}
+
+.commentarea .comment>.entry>.tagline>.expand {
+    padding: 10px !important;
+    display: inline-block !important;
+    min-width: 2em !important;
+    text-align: center !important;
+}
+
+div.res-expando-box {
+    background-color: transparent !important;
+}
+
+body,
+#sr-header-area,
+#RESShortcutsEditContainer>*,
+#RESShortcutsEditContainer,
+.debuginfo,
+.content,
+.res-expando-box,
+.top-matter {
+    background-color: black !important;
+    color: white !important;
+}
+
+p.debuginfo,
+.subbarlink,
+#srDropdownContainer a {
+    color: white !important;
+}
+
+div.nav-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 10vh;
+    width: 100vw;
+    margin-top: 20vh;
+    margin-bottom: 20vh;
+}
+
+span.next-button,
+span.prev-button {
+    margin: 2vh !important;
+    padding: 2vh;
+}
+
+span.next-button a,
+span.prev-button a {
+    height: 100%;
+    font-size: 8vh;
+    background: black !important;
+    color: white !important;
+    padding: 0.2vw;
+}
+
+span.next-button a:hover,
+span.prev-button a:hover {
+    background: white;
+    color: black;
+}
+
+@keyframes fadeIn {
+    from {
+        color: black;
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.happening-now-wrap,
+span.score,
+.userattrs,
+span.score-hidden,
+.awardings-bar,
+.listing-chooser,
+.give-gold-button,
+.share,
+.save-button,
+.saveComments,
+.crosspost-button,
+.report-button,
+.footer-parent,
+.presence_circle,
+.infobar-toaster-container,
+#notifications,
+#chat-v2,
+.badge-count {
     display: none !important;
-}
-`;
+}`;

@@ -4,16 +4,7 @@ if (window === window.top) { // Don't run in iframes
   console.log(`This is still working`);
 
   // --- CSS (inject once) ---
-  if (!document.getElementById(`yt-custom-styles`)) {
-    const style = document.createElement(`style`);
-    style.id = `yt-custom-styles`;
-    style.textContent = `
-        ytd-reel-shelf-renderer {
-            display: none;
-        }
-    `;
-    document.head.appendChild(style);
-  }
+  injectStyles(`yt-custom-styles`, STYLES);
 
   // --- Helpers ---
 
