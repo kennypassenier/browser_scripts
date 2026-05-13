@@ -120,6 +120,14 @@ const waitForElement = (selector, callback) => {
     observer.observe(document.body, { childList: true, subtree: true });
 };
 
+// Wraps an async action with the animateLink CSS animation (fade in/out over 2s).
+const withAnimation = async (el, fn) => {
+    el.classList.toggle("animateLink", true);
+    await fn();
+    await timeout(2000);
+    el.classList.toggle("animateLink", false);
+};
+
 const generateSeparator = () => {
     const sep = document.createElement("span");
     sep.textContent = " | ";
@@ -207,11 +215,10 @@ const setupSidebarToggle = () => {
 
     sidebarLink.addEventListener("click", async (e) => {
         e.preventDefault();
-        e.target.classList.toggle("animateLink", true);
-        sidebar.style.display = sidebar.style.display === "none" ? "block" : "none";
-        sidebarLink.classList.toggle("strikeThrough");
-        await timeout(2000);
-        e.target.classList.toggle("animateLink", false);
+        await withAnimation(e.target, async () => {
+            sidebar.style.display = sidebar.style.display === "none" ? "block" : "none";
+            sidebarLink.classList.toggle("strikeThrough");
+        });
     });
 };
 
@@ -355,16 +362,14 @@ function runModernFrontpage() {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    const isTitleClean = (title) => {
-        const lower = title.toLowerCase();
-        return !TITLE_BLOCK_LIST.some(term => lower.includes(term.toLowerCase()));
-    };
+    // Returns true if the value (case-insensitive) matches any term in the list.
+    const matchesBlockList = (value, list) =>
+        list.some(term => value.toLowerCase().includes(term.toLowerCase()));
 
-    const isFlairAllowed = (flair) => {
-        if (flair.length === 0) return true;
-        const lower = flair.toLowerCase();
-        return !FLAIR_BLOCK_LIST.some(term => lower.includes(term.toLowerCase()));
-    };
+    const isTitleClean = (title) => !matchesBlockList(title, TITLE_BLOCK_LIST);
+
+    const isFlairAllowed = (flair) =>
+        flair.length === 0 || !matchesBlockList(flair, FLAIR_BLOCK_LIST);
 
     // active=true adds strikethrough, active=false removes it.
     const setStrikeThrough = (el, active) => {
@@ -384,14 +389,13 @@ function runModernFrontpage() {
 
     const addCustomMenu = () => {
         const header = document.querySelector("#header-bottom-right");
-        const filterLink = document.createElement("a");
-        filterLink.id = "filterToggle";
-        filterLink.href = "#";
-        filterLink.textContent = "Filter";
-        const hideAllLink = document.createElement("a");
-        hideAllLink.id = "hideAllButton";
-        hideAllLink.href = "#";
-        hideAllLink.textContent = "Hide posts";
+        const createHeaderLink = (id, text) => {
+            const a = document.createElement("a");
+            a.id = id; a.href = "#"; a.textContent = text;
+            return a;
+        };
+        const filterLink = createHeaderLink("filterToggle", "Filter");
+        const hideAllLink = createHeaderLink("hideAllButton", "Hide posts");
         header.appendChild(generateSeparator());
         header.appendChild(filterLink);
         header.appendChild(generateSeparator());
@@ -468,23 +472,21 @@ function runModernFrontpage() {
 
     filterToggle.addEventListener("click", async (e) => {
         e.preventDefault();
-        e.target.classList.toggle("animateLink", true);
-        filterIsActive = !filterIsActive;
-        filterEntries();
-        setStrikeThrough(filterToggle, !filterIsActive); // strikethrough = filter is OFF
-        await timeout(2000);
-        e.target.classList.toggle("animateLink", false);
+        await withAnimation(e.target, async () => {
+            filterIsActive = !filterIsActive;
+            filterEntries();
+            setStrikeThrough(filterToggle, !filterIsActive);
+        });
     });
 
     hideAllButton.addEventListener("click", async (e) => {
         e.preventDefault();
-        e.target.classList.toggle("animateLink", true);
-        for (const button of document.querySelectorAll(".noCtrlF[data-event-action='hide']")) {
-            saveHiddenPost(getPostElement(button).dataset.fullname);
-        }
-        filterEntries();
-        await timeout(2000);
-        e.target.classList.toggle("animateLink", false);
+        await withAnimation(e.target, async () => {
+            for (const button of document.querySelectorAll(".noCtrlF[data-event-action='hide']")) {
+                saveHiddenPost(getPostElement(button).dataset.fullname);
+            }
+            filterEntries();
+        });
     });
 
     classifyPostLinks();
