@@ -551,34 +551,29 @@ if (CONFIG.debug) {
             items: [
                 {
                     feature: 'Dark theme applied',
-                    url: 'https://old.reddit.com/',
+                    url: 'Any old.reddit.com page',
                     expect: 'Background is black, text is white',
                 },
                 {
                     feature: 'User header simplified',
-                    url: 'https://old.reddit.com/',
+                    url: 'Any old.reddit.com page',
                     expect: 'Top-right user area shows only username + RES switcher icon, no karma numbers',
                 },
                 {
                     feature: 'Sidebar hidden by default',
-                    url: 'https://old.reddit.com/',
+                    url: 'Any old.reddit.com page',
                     expect: 'Right sidebar is not visible on page load',
                 },
                 {
                     feature: 'Sidebar toggle button',
-                    url: 'https://old.reddit.com/',
-                    expect: '"Sidebar" link appears in top-right header with strikethrough; click toggles sidebar visibility',
+                    url: 'Any old.reddit.com page',
+                    expect: '"Sidebar" link appears in top-right header; click toggles sidebar visibility',
                 },
                 {
                     feature: 'Show images auto-clicked (RES)',
-                    url: 'https://old.reddit.com/',
-                    expect: 'Post images expand automatically without manually clicking "show images"',
+                    url: 'Any old.reddit.com page',
+                    expect: 'Images expand automatically without manually clicking "show images"',
                     note: 'Requires Reddit Enhancement Suite to be installed',
-                },
-                {
-                    feature: 'Navigation buttons enlarged',
-                    url: 'https://old.reddit.com/',
-                    expect: 'Bottom of listing shows large "<<<" and ">>>" buttons instead of small text links',
                 },
             ],
         },
@@ -586,50 +581,29 @@ if (CONFIG.debug) {
             group: 'old.reddit.com — listing page only',
             items: [
                 {
+                    feature: 'Navigation buttons enlarged',
+                    url: 'Any old.reddit.com listing',
+                    expect: 'Bottom of page shows large "<<<" and ">>>" buttons instead of small text links',
+                },
+                {
                     feature: 'Auto-login via RES',
-                    url: 'https://old.reddit.com/ (while logged out)',
+                    url: 'Any old.reddit.com listing (while logged out)',
                     expect: 'RES account switcher opens and first account is clicked automatically',
                     note: 'Only triggers when a login link is detected in the header',
                 },
             ],
         },
         {
-            group: 'old.reddit.com — comments page',
+            group: 'old.reddit.com — comments page only',
             items: [
                 {
-                    feature: 'Dark theme applied',
-                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
-                    expect: 'Background is black, text is white',
-                },
-                {
-                    feature: 'User header simplified',
-                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
-                    expect: 'Top-right user area shows only username + RES switcher icon, no karma numbers',
-                },
-                {
-                    feature: 'Sidebar hidden by default',
-                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
-                    expect: 'Right sidebar is not visible on page load',
-                },
-                {
-                    feature: 'Sidebar toggle button',
-                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
-                    expect: '"Sidebar" link appears in top-right header; click toggles sidebar visibility',
-                },
-                {
-                    feature: 'Show images auto-clicked (RES)',
-                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
-                    expect: 'Inline images expand automatically without manually clicking "show images"',
-                    note: 'Requires Reddit Enhancement Suite to be installed',
-                },
-                {
                     feature: 'Embedded comment previews removed',
-                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
+                    url: 'Any old.reddit.com/r/*/comments/* thread',
                     expect: 'No inline .embed-comment blocks visible in the thread',
                 },
                 {
                     feature: 'Child comment toggles removed',
-                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
+                    url: 'Any old.reddit.com/r/*/comments/* thread',
                     expect: 'No "show child comments" inline toggles visible',
                 },
                 {
