@@ -4,233 +4,54 @@
 // - www.reddit.com  → redirected immediately to old.reddit.com
 // - old.reddit.com  → dark theme injected, sidebar hidden, auto-login via RES
 //   - /comments/ pages → comment cleanup (embed removal, rickroll detection)
-//   - all other pages  → frontpage (show-images, sidebar toggle)
-// - any other subdomain → custom filtering layer (post/author/flair/domain filters, hide posts)
+//   - all other pages  → frontpage (show-images, sidebar toggle, navigation)
+// - any other subdomain → custom filtering layer (post/author/flair/domain filters)
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-// Edit these lists to control what gets filtered on the frontpage.
 
-const PAYWALL_REMOVAL_SERVICE = "https://www.smry.ai/proxy?url=";
-const LOCALSTORAGE_TTL = 1000 * 60 * 60 * 72; // 72 hours
+const CONFIG = {
+    paywallService: "https://www.smry.ai/proxy?url=",
+    localStorageTtl: 1000 * 60 * 60 * 72, // 72 hours
 
-const TITLE_BLOCK_LIST = [
-    "kanye",
-    "pokemon",
-    "pokémon",
-    "pikachu",
-    "bitcoin",
-    "cryptocurrency",
-    " nft ",
-    "fungible",
-    "doge",
-    "blockchain",
-    "official trailer",
-    "nft ",
-    " nft",
-    "predictions tournament",
-    "twitter",
-    "marjorie taylor greene",
-    "shapiro",
-    "andrew tate",
-    "rainbow bridge",
-    "mug shot",
-    "mugshot",
-    "airdrop",
-    "layerzero",
-    "ted cruz",
-    "boebert",
-    "kissinger",
-    "aaron rodgers",
-    "drake",
-    "andy dick",
-    "doherty",
-    "giuliani",
-    "fox news",
-    "biden",
-    "jake paul",
-    "logan paul",
-    "tina peters",
-    "liam payne",
-    "pope",
-    "ozzy",
-    "slams",
-    "no kings",
-    "no-kings",
-];
+    filter: {
+        titles: [
+            "kanye", "pokemon", "pokémon", "pikachu",
+            "bitcoin", "cryptocurrency", " nft ", "fungible", "doge", "blockchain",
+            "official trailer", "nft ", " nft",
+            "predictions tournament",
+            "twitter",
+            "marjorie taylor greene", "shapiro", "andrew tate",
+            "rainbow bridge", "mug shot", "mugshot",
+            "airdrop", "layerzero",
+            "ted cruz", "boebert", "kissinger", "aaron rodgers",
+            "drake", "andy dick", "doherty", "giuliani", "fox news", "biden",
+            "jake paul", "logan paul", "tina peters", "liam payne",
+            "pope", "ozzy",
+            "slams",
+            "no kings", "no-kings",
+        ],
+        subreddits: {
+            blocked: ["meme", "circlejerk", "okbuddy", "mains", "anime", "crypto", "india", "snark"],
+            allowed: ["r/wholesomememes"],
+        },
+        authors: ["mekyas23", "cooperationapples", "noveljazzlike9473"],
+        flairs:  ["mourning/loss", "rainbow bridge", "pet loss", "trump news"],
+    },
 
-const SUBREDDIT_BLOCK_LIST = [
-    "meme",
-    "circlejerk",
-    "okbuddy",
-    "mains",
-    "anime",
-    "crypto",
-    "india",
-    "snark",
-];
-
-const SUBREDDIT_ALLOW_LIST = [
-    "r/wholesomememes",
-];
-
-const AUTHOR_BLOCK_LIST = [
-    "mekyas23",
-    "cooperationapples",
-    "noveljazzlike9473",
-];
-
-const FLAIR_BLOCK_LIST = [
-    "mourning/loss",
-    "rainbow bridge",
-    "pet loss",
-    "trump news",
-];
-
-const SITES_FIXED = [
-    "www.nytimes.com",
-];
-
-const SITES_WITH_PAYWALL = [
-    "www.forbes.com",
-    "www.wjtv.com",
-    "www.independent.co.uk",
-    "www.theguardian.com",
-    "www.wusa9.com",
-    "www.theatlantic.com",
-    "www.washingtonpost.com",
-];
-
-const TRASH_SITES = [
-    "nypost.com",
-];
-
-// ─── Shared utilities ────────────────────────────────────────────────────────
-
-const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Calls callback(element) immediately if the element is already in the DOM,
-// otherwise sets up a MutationObserver and calls it the moment it appears.
-const waitForElement = (selector, callback) => {
-    const el = document.querySelector(selector);
-    if (el) { callback(el); return; }
-    const observer = new MutationObserver(() => {
-        const el = document.querySelector(selector);
-        if (el) { observer.disconnect(); callback(el); }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
+    sites: {
+        fixed:   ["www.nytimes.com"],
+        paywall: [
+            "www.forbes.com", "www.wjtv.com", "www.independent.co.uk",
+            "www.theguardian.com", "www.wusa9.com", "www.theatlantic.com",
+            "www.washingtonpost.com",
+        ],
+        trash:   ["nypost.com"],
+    },
 };
 
-// Wraps an async action with the animateLink CSS animation (fade in/out over 2s).
-const withAnimation = async (el, fn) => {
-    el.classList.toggle("animateLink", true);
-    await fn();
-    await timeout(2000);
-    el.classList.toggle("animateLink", false);
-};
+// ─── Styles ───────────────────────────────────────────────────────────────────
 
-const generateSeparator = () => {
-    const sep = document.createElement("span");
-    sep.textContent = " | ";
-    sep.className = "separator";
-    return sep;
-};
-
-const removeParentOfAllNodes = (nodes) => {
-    nodes.forEach((node) => {
-        const target = node.parentElement;
-        target.parentElement.removeChild(target);
-    });
-};
-
-const detectRickroll = () => {
-    for (const link of document.querySelectorAll("a")) {
-        if (link.href.includes("dQw4w9WgXcQ")) {
-            link.title = link.textContent;
-            link.textContent = "--> RICKROLL <--";
-        }
-    }
-};
-
-// The user span in the header contains karma counts, mail icons, and other noise.
-// We strip it down to just the username link and the RES account switcher icon,
-// keeping the header clean without breaking RES account switching.
-const simplifyUserHeader = (el) => {
-    const accountSwitcher = el.querySelector("#RESAccountSwitcherIcon");
-    const userlink = el.querySelector("a");
-    el.textContent = "";
-    el.appendChild(userlink);
-    el.appendChild(accountSwitcher);
-};
-
-// Old Reddit wraps each post in a <div class="thing">. Many elements (title links,
-// subreddit labels, hide buttons) are deep children of it. This helper lets us
-// reach the post container from any descendant without brittle parentNode chains.
-const getPostElement = (el) => el.closest('.thing');
-
-// Replaces the default plain-text next/prev page links at the bottom of a listing
-// with large <<< / >>> arrows, making them easier to click.
-const changeNavigationButtons = () => waitForElement(".nextprev", parent => {
-    const next = document.querySelector(".next-button");
-    const prev = document.querySelector(".prev-button");
-    parent.textContent = "";
-    if (prev) { prev.querySelector("a").textContent = "<<<"; parent.append(prev); }
-    if (next) { next.querySelector("a").textContent = ">>>"; parent.append(next); }
-});
-
-// Removes entries from the "hiddenPosts" localStorage key that are older than
-// LOCALSTORAGE_TTL. Keeps the stored list from growing indefinitely.
-const cleanLocalStorage = () => {
-    const hiddenPosts = JSON.parse(window.localStorage.getItem("hiddenPosts"));
-    if (!hiddenPosts) return;
-    const cutoffDate = Date.now() - LOCALSTORAGE_TTL;
-    const filtered = hiddenPosts.filter(e => e.timestamp >= cutoffDate);
-    if (filtered.length !== hiddenPosts.length) {
-        window.localStorage.setItem("hiddenPosts", JSON.stringify(filtered));
-    }
-};
-
-// Old Reddit's sidebar takes up a lot of horizontal space and is rarely needed.
-// This adds a "Sidebar" link to the top-right header that shows/hides it on demand.
-// RES (Reddit Enhancement Suite) adds a "show images" button to the listing header.
-// Clicks it the moment it appears in the DOM. Works on frontpage and comments page.
-const clickShowImages = () => waitForElement(".res-show-images a", btn => btn.click());
-
-// The sidebar starts hidden. The link gets a strikethrough when the sidebar is hidden
-// (strikethrough = "this thing is off"), consistent with the Filter toggle in runModernFrontpage.
-// Shared between runCommentsPage and runFrontpage.
-const setupSidebarToggle = () => {
-    const sidebar = document.querySelector(".side");
-    const header = document.querySelector("#header-bottom-right");
-    if (!sidebar || !header) return;
-
-    const sidebarLink = document.createElement("a");
-    sidebarLink.id = "sidebarToggle";
-    sidebarLink.href = "#";
-    sidebarLink.className = "strikeThrough";
-    sidebarLink.textContent = "Sidebar";
-    header.appendChild(generateSeparator());
-    header.appendChild(sidebarLink);
-
-    sidebar.style.display = "none";
-
-    sidebarLink.addEventListener("click", async (e) => {
-        e.preventDefault();
-        await withAnimation(e.target, async () => {
-            sidebar.style.display = sidebar.style.display === "none" ? "block" : "none";
-            sidebarLink.classList.toggle("strikeThrough");
-        });
-    });
-};
-
-// Injects the dark theme and UI cleanup CSS for old.reddit.com.
-// Covers: dark background, white text, enlarged collapse bars, hidden clutter
-// (scores, gold, share, report, badges, notifications, etc.), and nav button restyling.
-// The id guard prevents double-injection if the script somehow runs twice.
-function injectStyles() {
-    if (document.getElementById('reddit-custom-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'reddit-custom-styles';
-    style.textContent = `
+const STYLES = `
     .fixedSite{ color: #DE781F !important; }
     .trashSite{ color: #253529 !important; }
     .paywall{ color: #1F85DE !important; }
@@ -272,166 +93,227 @@ function injectStyles() {
     .infobar-toaster-container, #notifications, #chat-v2, .badge-count{
         display: none !important;
     }
-    `;
+`;
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+
+const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Resolves with the element immediately if already in the DOM,
+// otherwise waits for it to appear via MutationObserver.
+const waitForElement = (selector) => new Promise(resolve => {
+    const el = document.querySelector(selector);
+    if (el) { resolve(el); return; }
+    const observer = new MutationObserver(() => {
+        const el = document.querySelector(selector);
+        if (el) { observer.disconnect(); resolve(el); }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+});
+
+// Wraps an async action with the animateLink CSS animation (fade in/out over 2s).
+const withAnimation = async (el, fn) => {
+    el.classList.toggle("animateLink", true);
+    await fn();
+    await timeout(2000);
+    el.classList.toggle("animateLink", false);
+};
+
+// Returns true if the value (case-insensitive) matches any term in the list.
+const matchesBlockList = (value, list) =>
+    list.some(term => value.toLowerCase().includes(term.toLowerCase()));
+
+const generateSeparator = () => {
+    const sep = document.createElement("span");
+    sep.textContent = " | ";
+    sep.className = "separator";
+    return sep;
+};
+
+const removeParentOfAllNodes = (nodes) => {
+    nodes.forEach(node => node.parentElement.parentElement.removeChild(node.parentElement));
+};
+
+// Injects the dark theme and UI cleanup CSS. The id guard prevents double-injection.
+const injectStyles = () => {
+    if (document.getElementById('reddit-custom-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'reddit-custom-styles';
+    style.textContent = STYLES;
     document.head.appendChild(style);
-}
+};
 
-// ─── URL routing ─────────────────────────────────────────────────────────────
+// The user span in the header contains karma counts, mail icons, and other noise.
+// We strip it down to just the username link and the RES account switcher icon.
+const simplifyUserHeader = (el) => {
+    const accountSwitcher = el.querySelector("#RESAccountSwitcherIcon");
+    const userlink = el.querySelector("a");
+    el.textContent = "";
+    el.appendChild(userlink);
+    el.appendChild(accountSwitcher);
+};
 
-const host = location.host;
-const path = location.pathname;
-const isOldReddit = host === 'old.reddit.com';
-const isComments = /\/comments\//.test(path);
-const isWww = host.startsWith('www.');
+// Old Reddit wraps each post in a <div class="thing">. This reaches it from any descendant.
+const getPostElement = (el) => el.closest('.thing');
 
-if (isWww) {
-    // Redirect www.reddit.com to old.reddit.com, preserving the path and query string.
-    location.replace(location.protocol + '//old.reddit.com' + path + location.search);
-} else if (isOldReddit && isComments) {
-    // A thread/comments page on old Reddit — different layout from the frontpage.
-    runCommentsPage();
-} else if (isOldReddit) {
-    // The frontpage (or a subreddit listing) on old Reddit.
-    runFrontpage();
-} else {
-    // Fallback for any other subdomain — runs the custom filtering layer.
-    runModernFrontpage();
-}
+// RES adds a "show images" button to the listing header. Clicks it the moment it appears.
+const clickShowImages = async () => {
+    const btn = await waitForElement(".res-show-images a");
+    btn.click();
+};
 
-// ─── old.reddit.com — comments page ─────────────────────────────────────────
+// Replaces the plain-text next/prev page links with large <<< / >>> arrows.
+const changeNavigationButtons = async () => {
+    const parent = await waitForElement(".nextprev");
+    const next = document.querySelector(".next-button");
+    const prev = document.querySelector(".prev-button");
+    parent.textContent = "";
+    if (prev) { prev.querySelector("a").textContent = "<<<"; parent.append(prev); }
+    if (next) { next.querySelector("a").textContent = ">>>"; parent.append(next); }
+};
+
+// Removes localStorage entries for hidden posts older than CONFIG.localStorageTtl.
+const cleanLocalStorage = () => {
+    const hiddenPosts = JSON.parse(window.localStorage.getItem("hiddenPosts"));
+    if (!hiddenPosts) return;
+    const cutoff = Date.now() - CONFIG.localStorageTtl;
+    const filtered = hiddenPosts.filter(e => e.timestamp >= cutoff);
+    if (filtered.length !== hiddenPosts.length) {
+        window.localStorage.setItem("hiddenPosts", JSON.stringify(filtered));
+    }
+};
+
+// Adds a "Sidebar" link to the top-right header that shows/hides the sidebar on demand.
+// The link starts with a strikethrough (sidebar is hidden by default).
+const setupSidebarToggle = () => {
+    const sidebar = document.querySelector(".side");
+    const header = document.querySelector("#header-bottom-right");
+    if (!sidebar || !header) return;
+
+    const sidebarLink = document.createElement("a");
+    sidebarLink.id = "sidebarToggle";
+    sidebarLink.href = "#";
+    sidebarLink.className = "strikeThrough";
+    sidebarLink.textContent = "Sidebar";
+    header.appendChild(generateSeparator());
+    header.appendChild(sidebarLink);
+
+    sidebar.style.display = "none";
+
+    sidebarLink.addEventListener("click", async (e) => {
+        e.preventDefault();
+        await withAnimation(e.target, async () => {
+            sidebar.style.display = sidebar.style.display === "none" ? "block" : "none";
+            sidebarLink.classList.toggle("strikeThrough");
+        });
+    });
+};
+
+// ─── Page functions ───────────────────────────────────────────────────────────
+
+const runRedirect = () => {
+    location.replace(location.protocol + '//old.reddit.com' + location.pathname + location.search);
+};
 
 // Cleans up a thread page on old.reddit.com.
-// - Injects the shared dark theme
-// - Removes embedded comment previews (.embed-comment) and their wrappers
-// - Removes inline "show child comments" toggles (.toggleChildren) and their wrappers
-// - Flags any YouTube rickroll links with visible text so they can't sneak by
-// - Strips karma/noise from the header user span (same as the frontpage)
-// - Hides the sidebar by default and adds a toggle for it in the header
-function runCommentsPage() {
+const runCommentsPage = () => {
     injectStyles();
     simplifyUserHeader(document.querySelector("span.user"));
     removeParentOfAllNodes(document.querySelectorAll(".embed-comment"));
     removeParentOfAllNodes(document.querySelectorAll(".toggleChildren"));
-    detectRickroll();
+
+    // Flag any YouTube rickroll links with visible text so they can't sneak by.
+    for (const link of document.querySelectorAll("a")) {
+        if (link.href.includes("dQw4w9WgXcQ")) {
+            link.title = link.textContent;
+            link.textContent = "--> RICKROLL <--";
+        }
+    }
+
     setupSidebarToggle();
     clickShowImages();
-    // TODO: add custom menu items here (e.g. Reveddit/Unddit links)
-}
-
-// ─── old.reddit.com — frontpage ─────────────────────────────────────────────
+};
 
 // Sets up the old Reddit listing page (frontpage or subreddit).
-// - Injects the shared dark theme
-// - Strips the user span down to just the username link + RES account switcher icon
-// - Hides the sidebar by default and adds a toggle for it in the header
-// - Auto-clicks the RES "show images" button so images expand immediately
-// - Auto-logs in using the first account in the RES account switcher, if not already logged in
-function runFrontpage() {
-    // If Reddit shows a login link (i.e. we're not logged in), open the RES account
-    // switcher dropdown and click the first account to auto-login.
-    const loginUser = () => {
+const runFrontpage = () => {
+    // If not logged in, open the RES account switcher dropdown and click the first account.
+    const loginUser = async () => {
         const userSpan = document.querySelector("#header-bottom-right span");
         if (!userSpan.querySelector("a.login-link")) return;
         userSpan.querySelector("#RESAccountSwitcherIcon").click();
-        waitForElement(".RESHover.RESHoverDropdownList ul li", item => item.click());
+        const item = await waitForElement(".RESHover.RESHoverDropdownList ul li");
+        item.click();
     };
 
     injectStyles();
-    const user = document.querySelector("span.user");
-    simplifyUserHeader(user);
+    simplifyUserHeader(document.querySelector("span.user"));
     setupSidebarToggle();
     clickShowImages();
     loginUser();
     changeNavigationButtons();
-}
-
-// ─── custom filtering — frontpage ────────────────────────────────────────────
+};
 
 // Custom filtering layer for the Reddit frontpage listing.
-// This is not a response to Reddit's UI — it's a personal comfort layer built from scratch.
-// - Adds "Filter" and "Hide posts" buttons to the header
-// - Classifies external links by domain (paywall, trash site, fixed site) using CSS classes
-// - Filters posts by title keywords, author, and flair (driven by the config lists at the top)
-// - Persists hidden posts in localStorage so they stay hidden across page loads (72h TTL)
-// - Resizes the next/prev navigation buttons at the bottom of the listing
-function runModernFrontpage() {
-    if (/\/comments\//.test(path)) return;
+// Adds "Filter" and "Hide posts" buttons, classifies links by domain, filters posts
+// by title/author/flair, and persists hidden posts in localStorage (72h TTL).
+const runModernFrontpage = () => {
+    if (/\/comments\//.test(location.pathname)) return;
 
     const storage = window.localStorage;
     let filterIsActive = true;
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    // Returns true if the value (case-insensitive) matches any term in the list.
-    const matchesBlockList = (value, list) =>
-        list.some(term => value.toLowerCase().includes(term.toLowerCase()));
-
-    const isTitleClean = (title) => !matchesBlockList(title, TITLE_BLOCK_LIST);
-
-    const isFlairAllowed = (flair) =>
-        flair.length === 0 || !matchesBlockList(flair, FLAIR_BLOCK_LIST);
-
-    // active=true adds strikethrough, active=false removes it.
-    const setStrikeThrough = (el, active) => {
-        el.classList.toggle("strikeThrough", active);
-    };
+    const isTitleClean    = (title) => !matchesBlockList(title, CONFIG.filter.titles);
+    const isFlairAllowed  = (flair) => flair.length === 0 || !matchesBlockList(flair, CONFIG.filter.flairs);
+    const setStrikeThrough = (el, active) => el.classList.toggle("strikeThrough", active);
 
     const saveHiddenPost = (postId) => {
         const hiddenPosts = JSON.parse(storage.getItem('hiddenPosts')) || [];
-        const alreadySaved = hiddenPosts.some(e => e.postId === postId);
-        if (!alreadySaved) {
+        if (!hiddenPosts.some(e => e.postId === postId)) {
             hiddenPosts.push({ postId, timestamp: Date.now() });
             storage.setItem('hiddenPosts', JSON.stringify(hiddenPosts));
         }
+    };
+
+    const createHeaderLink = (id, text) => {
+        const a = document.createElement("a");
+        a.id = id; a.href = "#"; a.textContent = text;
+        return a;
     };
 
     // ── Core logic ────────────────────────────────────────────────────────────
 
     const addCustomMenu = () => {
         const header = document.querySelector("#header-bottom-right");
-        const createHeaderLink = (id, text) => {
-            const a = document.createElement("a");
-            a.id = id; a.href = "#"; a.textContent = text;
-            return a;
-        };
-        const filterLink = createHeaderLink("filterToggle", "Filter");
-        const hideAllLink = createHeaderLink("hideAllButton", "Hide posts");
         header.appendChild(generateSeparator());
-        header.appendChild(filterLink);
+        header.appendChild(createHeaderLink("filterToggle", "Filter"));
         header.appendChild(generateSeparator());
-        header.appendChild(hideAllLink);
+        header.appendChild(createHeaderLink("hideAllButton", "Hide posts"));
     };
 
-    // Marks external post links with CSS classes based on their domain.
-    // Runs once on page load — does not need to re-run when filter toggles.
+    // Marks external post links with CSS classes based on their domain (runs once on load).
     const classifyPostLinks = () => {
         for (const entry of document.querySelectorAll(".thing a.title")) {
             const post = getPostElement(entry);
             if (post.dataset.url.startsWith("/r")) continue;
-            const url = new URL(post.dataset.url);
+            const { hostname } = new URL(post.dataset.url);
             const titleLink = post.querySelector(".title > a");
-            if (SITES_FIXED.includes(url.hostname)) {
-                titleLink.classList.add("fixedSite");
-            }
-            if (SITES_WITH_PAYWALL.includes(url.hostname)) {
+            if (CONFIG.sites.fixed.includes(hostname))   titleLink.classList.add("fixedSite");
+            if (CONFIG.sites.trash.includes(hostname))   titleLink.classList.add("trashSite");
+            if (CONFIG.sites.paywall.includes(hostname)) {
                 titleLink.classList.add("paywall");
-                titleLink.href = `${PAYWALL_REMOVAL_SERVICE}${post.dataset.url}`;
-            }
-            if (TRASH_SITES.includes(url.hostname)) {
-                titleLink.classList.add("trashSite");
+                titleLink.href = `${CONFIG.paywallService}${post.dataset.url}`;
             }
         }
     };
 
-    // Shows or hides posts based on title, author, flair, and hidden-post list.
-    // Called on load and whenever the filter is toggled.
+    // Shows or hides posts based on title, author, flair, and the hidden-post list.
     const filterEntries = () => {
         const hiddenPosts = JSON.parse(storage.getItem("hiddenPosts")) || [];
         for (const entry of document.querySelectorAll(".thing a.title")) {
             const post = getPostElement(entry);
             const postId = post.dataset.fullname;
-            const author = post.dataset?.author?.toLowerCase();
-            const flair = post.querySelector(".flairrichtext")?.title ?? "";
             if (!postId) continue;
 
             if (hiddenPosts.some(e => e.postId === postId)) {
@@ -442,32 +324,30 @@ function runModernFrontpage() {
             const titleText = entry.text;
             if (titleText === undefined) continue;
 
+            const author = post.dataset?.author?.toLowerCase();
+            const flair  = post.querySelector(".flairrichtext")?.title ?? "";
+
             const shouldFilter = !isTitleClean(titleText)
-                || AUTHOR_BLOCK_LIST.includes(author)
+                || CONFIG.filter.authors.includes(author)
                 || !isFlairAllowed(flair);
-            if (shouldFilter) {
-                post.style.display = filterIsActive ? "none" : "block";
-            }
+
+            if (shouldFilter) post.style.display = filterIsActive ? "none" : "block";
         }
     };
 
     const filterSubreddit = () => {
         for (const entry of document.querySelectorAll(".subreddit")) {
-            const currentString = entry.textContent.toLowerCase();
-            const isBlocked = SUBREDDIT_BLOCK_LIST.some(term => currentString.includes(term));
-            const isAllowed = SUBREDDIT_ALLOW_LIST.includes(currentString);
-            if (isBlocked && !isAllowed) {
-                getPostElement(entry).style.display = "none";
-            }
+            const name = entry.textContent.toLowerCase();
+            const isBlocked = matchesBlockList(name, CONFIG.filter.subreddits.blocked);
+            const isAllowed = CONFIG.filter.subreddits.allowed.includes(name);
+            if (isBlocked && !isAllowed) getPostElement(entry).style.display = "none";
         }
     };
 
-
-
-    // ── Main ──────────────────────────────────────────────────────────────────
+    // ── Bootstrap ─────────────────────────────────────────────────────────────
 
     addCustomMenu();
-    const filterToggle = document.querySelector("#filterToggle");
+    const filterToggle  = document.querySelector("#filterToggle");
     const hideAllButton = document.querySelector("#hideAllButton");
 
     filterToggle.addEventListener("click", async (e) => {
@@ -482,8 +362,8 @@ function runModernFrontpage() {
     hideAllButton.addEventListener("click", async (e) => {
         e.preventDefault();
         await withAnimation(e.target, async () => {
-            for (const button of document.querySelectorAll(".noCtrlF[data-event-action='hide']")) {
-                saveHiddenPost(getPostElement(button).dataset.fullname);
+            for (const btn of document.querySelectorAll(".noCtrlF[data-event-action='hide']")) {
+                saveHiddenPost(getPostElement(btn).dataset.fullname);
             }
             filterEntries();
         });
@@ -494,4 +374,15 @@ function runModernFrontpage() {
     filterSubreddit();
     cleanLocalStorage();
     changeNavigationButtons();
-}
+};
+
+// ─── Router ───────────────────────────────────────────────────────────────────
+
+const routes = [
+    { match: () => location.host.startsWith('www.'),                                             run: runRedirect },
+    { match: () => location.host === 'old.reddit.com' && /\/comments\//.test(location.pathname), run: runCommentsPage },
+    { match: () => location.host === 'old.reddit.com',                                           run: runFrontpage },
+    { match: () => true,                                                                          run: runModernFrontpage },
+];
+
+routes.find(r => r.match()).run();
