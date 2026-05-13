@@ -504,78 +504,207 @@ if (!matchedRoute) {
     matchedRoute.run();
 }
 
-// ─── Debug / test harness ─────────────────────────────────────────────────────
+// ─── Debug harness ────────────────────────────────────────────────────────────
 // Only active when CONFIG.debug = true.
-// Set CONFIG.debug = true in the Config section above, then open the browser console.
+// Set CONFIG.debug = true in the Config section above, then reload the page.
 //
-// Usage:
-//   window._reddit.runTests()     — print a pass/fail report for all features on this page
-//   window._reddit.Post.getAll()  — inspect all Post objects on the current listing
-//   window._reddit.cleanLocalStorage()  — manually trigger localStorage cleanup
-//   window._reddit.applyPostFilters()   — re-run the filter layer without a page reload
+// Then open the browser console and run:
+//   window._reddit.help()   — print the full feature checklist for manual testing
 
 if (CONFIG.debug) {
-    // Each test returns true (pass), false (fail), or throws (error).
-    // Tests are naturally scoped — they check DOM state after the page functions have run,
-    // so tests that don't apply to the current page will simply fail as "not found".
-    const tests = {
-        // Styles & theme
-        'Dark theme injected':            () => !!document.getElementById('reddit-custom-styles'),
-
-        // Header elements
-        'Sidebar toggle present':         () => !!document.getElementById('sidebarToggle'),
-        'Filter button present':          () => !!document.getElementById('filterToggle'),
-        'Hide posts button present':      () => !!document.getElementById('hideAllButton'),
-
-        // Navigation
-        'Prev button replaced with <<<':  () => document.querySelector('.prev-button a')?.textContent === '<<<',
-        'Next button replaced with >>>':  () => document.querySelector('.next-button a')?.textContent === '>>>',
-
-        // Comments page cleanup
-        'Embed comments removed':         () => document.querySelectorAll('.embed-comment').length === 0,
-        'Child comment toggles removed':  () => document.querySelectorAll('.toggleChildren').length === 0,
-
-        // User header
-        'User karma stripped from header':() => !document.querySelector('span.user .userkarma'),
-
-        // Post class
-        'Posts found on page':            () => Post.getAll().length > 0,
-        'localStorage readable':          () => { Post.getHiddenList(); return true; },
-    };
+    // FEATURES is the single source of truth for everything this script does.
+    // Each entry describes one feature: which page to visit, what to look for,
+    // and optionally a console command to help inspect or trigger it manually.
+    const FEATURES = [
+        {
+            group: 'www.reddit.com',
+            items: [
+                {
+                    feature:  'Redirect to old.reddit.com',
+                    url:      'https://www.reddit.com/',
+                    expect:   'Browser immediately lands on https://old.reddit.com/',
+                },
+            ],
+        },
+        {
+            group: 'old.reddit.com — all pages',
+            items: [
+                {
+                    feature:  'Dark theme applied',
+                    url:      'https://old.reddit.com/',
+                    expect:   'Background is black, text is white',
+                },
+                {
+                    feature:  'User header simplified',
+                    url:      'https://old.reddit.com/',
+                    expect:   'Top-right user area shows only username + RES switcher icon, no karma numbers',
+                },
+                {
+                    feature:  'Sidebar hidden by default',
+                    url:      'https://old.reddit.com/',
+                    expect:   'Right sidebar is not visible on page load',
+                },
+                {
+                    feature:  'Sidebar toggle button',
+                    url:      'https://old.reddit.com/',
+                    expect:   '"Sidebar" link appears in top-right header with strikethrough; click toggles sidebar visibility',
+                },
+                {
+                    feature:  'Show images auto-clicked (RES)',
+                    url:      'https://old.reddit.com/',
+                    expect:   'Post images expand automatically without manually clicking "show images"',
+                    note:     'Requires Reddit Enhancement Suite to be installed',
+                },
+                {
+                    feature:  'Navigation buttons enlarged',
+                    url:      'https://old.reddit.com/',
+                    expect:   'Bottom of listing shows large "<<<" and ">>>" buttons instead of small text links',
+                },
+            ],
+        },
+        {
+            group: 'old.reddit.com — listing page only',
+            items: [
+                {
+                    feature:  'Auto-login via RES',
+                    url:      'https://old.reddit.com/ (while logged out)',
+                    expect:   'RES account switcher opens and first account is clicked automatically',
+                    note:     'Only triggers when a login link is detected in the header',
+                },
+            ],
+        },
+        {
+            group: 'old.reddit.com — comments page',
+            items: [
+                {
+                    feature:  'Embedded comment previews removed',
+                    url:      'Any https://old.reddit.com/r/*/comments/* thread',
+                    expect:   'No inline .embed-comment blocks visible in the thread',
+                },
+                {
+                    feature:  'Child comment toggles removed',
+                    url:      'Any https://old.reddit.com/r/*/comments/* thread',
+                    expect:   'No "show child comments" inline toggles visible',
+                },
+                {
+                    feature:  'Rickroll links flagged',
+                    url:      'Any thread containing a youtu.be/dQw4w9WgXcQ link',
+                    expect:   'Link text replaced with "--> RICKROLL <--"',
+                },
+            ],
+        },
+        {
+            group: 'reddit.com (non-old) — listing pages only',
+            items: [
+                {
+                    feature:  'Filter button added to header',
+                    url:      'https://www.reddit.com/r/all/ (after redirect resolves to old)',
+                    expect:   '"Filter" link appears in top-right header',
+                    cmd:      '!!document.getElementById("filterToggle")',
+                },
+                {
+                    feature:  'Hide posts button added to header',
+                    url:      'Same as above',
+                    expect:   '"Hide posts" link appears in top-right header',
+                    cmd:      '!!document.getElementById("hideAllButton")',
+                },
+                {
+                    feature:  'Filter toggle hides blocked posts',
+                    url:      'https://old.reddit.com/r/all/',
+                    expect:   'Posts matching title/author/flair block lists are hidden; clicking "Filter" shows/hides them',
+                    cmd:      'window._reddit.Post.getAll().filter(p => p.isBlocked)',
+                },
+                {
+                    feature:  'Subreddit filter hides blocked subreddits',
+                    url:      'https://old.reddit.com/r/all/',
+                    expect:   'Posts from blocked subreddits (e.g. r/meme, r/anime) are hidden',
+                    cmd:      'window._reddit.Post.getAll().filter(p => p.isSubredditBlocked)',
+                },
+                {
+                    feature:  'Paywall links rerouted',
+                    url:      'https://old.reddit.com/r/all/ (find a Forbes/Guardian/etc post)',
+                    expect:   'Title link href starts with the smry.ai proxy URL; link is blue',
+                    cmd:      'window._reddit.Post.getAll().filter(p => p.hostname && CONFIG.sites.paywall.includes(p.hostname))',
+                },
+                {
+                    feature:  'Trash site links dimmed',
+                    url:      'https://old.reddit.com/r/all/ (find a NY Post link)',
+                    expect:   'Title link has dark green colour (.trashSite class)',
+                    cmd:      'window._reddit.Post.getAll().filter(p => p.hostname && CONFIG.sites.trash.includes(p.hostname))',
+                },
+                {
+                    feature:  'Fixed site links highlighted',
+                    url:      'https://old.reddit.com/r/all/ (find an NYTimes link)',
+                    expect:   'Title link is orange (.fixedSite class)',
+                    cmd:      'window._reddit.Post.getAll().filter(p => p.hostname && CONFIG.sites.fixed.includes(p.hostname))',
+                },
+                {
+                    feature:  'Hide posts persists across page loads',
+                    url:      'https://old.reddit.com/r/all/',
+                    expect:   'Click "Hide posts", reload the page — same posts remain hidden',
+                    cmd:      'window._reddit.Post.getHiddenList()',
+                },
+                {
+                    feature:  'applyPostFilters skips non-listing pages',
+                    url:      'https://old.reddit.com/u/username or /message/inbox',
+                    expect:   'No "Filter" or "Hide posts" buttons appear in the header',
+                },
+            ],
+        },
+        {
+            group: 'Utilities / localStorage',
+            items: [
+                {
+                    feature:  'Hidden posts expire after 72h',
+                    url:      'Any listing page',
+                    expect:   'Entries older than 72h are removed from hiddenPosts on next page load',
+                    cmd:      'window._reddit.cleanLocalStorage()',
+                },
+                {
+                    feature:  'Inspect all posts on current page',
+                    cmd:      'window._reddit.Post.getAll()',
+                },
+                {
+                    feature:  'Inspect hidden posts list',
+                    cmd:      'window._reddit.Post.getHiddenList()',
+                },
+                {
+                    feature:  'Clear all hidden posts',
+                    cmd:      'localStorage.removeItem("hiddenPosts")',
+                },
+            ],
+        },
+    ];
 
     window._reddit = {
-        // Expose config and core class for inspection
-        config: CONFIG,
+        config:  CONFIG,
         Post,
-
-        // Re-expose all page functions so they can be called manually from the console
         redirectToOldReddit,
         setupCommentsPage,
         setupRedditPage,
         applyPostFilters,
-
-        // Re-expose utility functions
         cleanLocalStorage,
         changeNavigationButtons,
         clickShowImages,
 
-        // Runs all tests and prints a grouped pass/fail report in the console.
-        runTests() {
-            console.group(`[reddit] Test report — ${location.href}`);
-            let passed = 0, failed = 0;
-            for (const [name, fn] of Object.entries(tests)) {
-                try {
-                    const result = fn();
-                    if (result) { console.log(`  ✓ ${name}`); passed++; }
-                    else        { console.warn(`  ✗ ${name}`); failed++; }
-                } catch (err) {
-                    console.error(`  ✗ ${name} — threw: ${err.message}`); failed++;
+        // Prints the full feature checklist grouped by page context.
+        help() {
+            console.group('[reddit] Feature checklist — manual testing guide');
+            for (const { group, items } of FEATURES) {
+                console.group(`📋 ${group}`);
+                for (const item of items) {
+                    const lines = [`  • ${item.feature}`];
+                    if (item.url)    lines.push(`      URL:    ${item.url}`);
+                    if (item.expect) lines.push(`      Expect: ${item.expect}`);
+                    if (item.note)   lines.push(`      Note:   ${item.note}`);
+                    if (item.cmd)    lines.push(`      Debug:  ${item.cmd}`);
+                    console.log(lines.join('\n'));
                 }
+                console.groupEnd();
             }
-            console.log(`\n  ${passed} passed, ${failed} failed`);
             console.groupEnd();
         },
     };
 
-    log.info('Debug mode active — run window._reddit.runTests() to check all features on this page.');
+    log.info('Debug mode active — run window._reddit.help() to see the full feature checklist.');
 }
