@@ -37,6 +37,12 @@ fn main() {
     println!("       MONKEY MANAGER         ");
     println!("------------------------------");
 
+    let args: Vec<String> = std::env::args().collect();
+    if args.iter().any(|a| a == "--update") {
+        update_all(&root);
+        return;
+    }
+
     let selections = &["New Website", "Update All", "Exit"];
     let selection = Select::with_theme(&ColorfulTheme::default())
         .with_prompt("Action")
