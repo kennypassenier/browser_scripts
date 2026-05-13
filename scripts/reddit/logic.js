@@ -597,6 +597,32 @@ if (CONFIG.debug) {
             group: 'old.reddit.com — comments page',
             items: [
                 {
+                    feature: 'Dark theme applied',
+                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
+                    expect: 'Background is black, text is white',
+                },
+                {
+                    feature: 'User header simplified',
+                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
+                    expect: 'Top-right user area shows only username + RES switcher icon, no karma numbers',
+                },
+                {
+                    feature: 'Sidebar hidden by default',
+                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
+                    expect: 'Right sidebar is not visible on page load',
+                },
+                {
+                    feature: 'Sidebar toggle button',
+                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
+                    expect: '"Sidebar" link appears in top-right header; click toggles sidebar visibility',
+                },
+                {
+                    feature: 'Show images auto-clicked (RES)',
+                    url: 'Any https://old.reddit.com/r/*/comments/* thread',
+                    expect: 'Inline images expand automatically without manually clicking "show images"',
+                    note: 'Requires Reddit Enhancement Suite to be installed',
+                },
+                {
                     feature: 'Embedded comment previews removed',
                     url: 'Any https://old.reddit.com/r/*/comments/* thread',
                     expect: 'No inline .embed-comment blocks visible in the thread',
