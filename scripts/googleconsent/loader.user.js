@@ -2,7 +2,7 @@
 // @name         googleconsent
 // @namespace    Custom.Automation
 // @version      1778682582
-// @description  
+// @description
 // @author       Kenny
 // @match        *://consent.google.com
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/googleconsent/loader.user.js

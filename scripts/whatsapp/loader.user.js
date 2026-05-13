@@ -2,7 +2,7 @@
 // @name         whatsapp
 // @namespace    Custom.Automation
 // @version      1778682582
-// @description  
+// @description
 // @author       Kenny
 // @match        *://api.whatsapp.com
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/whatsapp/loader.user.js

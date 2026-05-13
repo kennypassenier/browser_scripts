@@ -2,7 +2,7 @@
 // @name         google
 // @namespace    Custom.Automation
 // @version      1778682582
-// @description  
+// @description
 // @author       Kenny
 // @match        *://www.google.com/*
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/google/loader.user.js

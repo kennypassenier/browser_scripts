@@ -2,7 +2,7 @@
 // @name         sudokupad
 // @namespace    Custom.Automation
 // @version      1778682582
-// @description  
+// @description
 // @author       Kenny
 // @match        *://sudokupad.app/*
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/sudokupad/loader.user.js

@@ -2,7 +2,7 @@
 // @name         twitter
 // @namespace    Custom.Automation
 // @version      1778682582
-// @description  
+// @description
 // @author       Kenny
 // @match        *://*.x.com/*
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/twitter/loader.user.js

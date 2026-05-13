@@ -2,7 +2,7 @@
 // @name         crackingthecryptic
 // @namespace    Custom.Automation
 // @version      1778682582
-// @description  
+// @description
 // @author       Kenny
 // @match        *://app.crackingthecryptic.com
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/crackingthecryptic/loader.user.js

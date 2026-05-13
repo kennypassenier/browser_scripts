@@ -2,7 +2,7 @@
 // @name         localswagger
 // @namespace    Custom.Automation
 // @version      1778682582
-// @description  
+// @description
 // @author       Kenny
 // @match        *://localhost:*/swagger/*
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/localswagger/loader.user.js
