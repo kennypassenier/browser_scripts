@@ -1,0 +1,25 @@
+{
+  "name": "browser_scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A professional-grade management system for UserScripts using GitHub as a Source of Truth. This tool handles multi-platform environments (Windows/Linux) via a unified Rust binary.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint scripts/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kennypassenier/browser_scripts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kennypassenier/browser_scripts/issues"
+  },
+  "homepage": "https://github.com/kennypassenier/browser_scripts#readme",
+  "devDependencies": {
+    "eslint": "^10.3.0"
+  }
+}
