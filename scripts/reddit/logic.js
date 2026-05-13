@@ -3,11 +3,10 @@
 // Runs on all reddit.com subdomains via Tampermonkey.
 //
 // Route map:
-//   www.reddit.com          → redirectToOldReddit()
-//   old.reddit.com/*        → setupOldReddit()        — always: styles, header, sidebar, images
-//   old.reddit.com/comments →   + setupCommentsPage() — comment cleanup
-//   old.reddit.com/listing  →   + setupRedditPage() + applyPostFilters()
-//   *.reddit.com            → applyPostFilters()      — other subdomains
+//   *.reddit.com (non-old)  → redirectToOldReddit()  — redirect any non-old subdomain
+//   old.reddit.com/*        → runUniversal()          — always: styles, header, sidebar, images
+//   old.reddit.com/comments →   + runComments()       — comment cleanup
+//   old.reddit.com/listing  →   + runPostListing() + applyPostFilters()
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -330,7 +329,7 @@ const setupSidebarToggle = () => {
 };
 
 // Runs on every old.reddit.com page before any page-specific setup.
-const setupOldReddit = () => {
+const runUniversal = () => {
     injectStyles();
     simplifyUserHeader(document.querySelector("span.user"));
     setupSidebarToggle();
@@ -340,16 +339,17 @@ const setupOldReddit = () => {
 
 // ─── Page functions ───────────────────────────────────────────────────────────
 
-// www.reddit.com is just a redirect shell — all customizations live on old.reddit.com.
+// Any non-old subdomain (www, np, new, i, …) gets bounced to old.reddit.com.
+// This is the only place in the script that references old reddit by name.
 const redirectToOldReddit = () => {
-    log.info('Redirecting www → old.reddit.com');
+    log.info(`Redirecting ${location.host} → old.reddit.com`);
     location.replace(location.protocol + '//old.reddit.com' + location.pathname + location.search);
 };
 
 // Runs on a reddit comments page (old.reddit.com/r/*/comments/*).
 // Removes embedded comment previews and inline child-comment toggles, flags rickroll links.
 // setupOldReddit() always runs first and handles styles, header, sidebar, and images.
-const setupCommentsPage = () => {
+const runComments = () => {
     log.info('setupCommentsPage: starting');
     removeParentOfAllNodes(document.querySelectorAll(".embed-comment"));
     removeParentOfAllNodes(document.querySelectorAll(".toggleChildren"));
@@ -369,7 +369,7 @@ const setupCommentsPage = () => {
 // Runs on the reddit listing page (frontpage, subreddit, multireddit) on old.reddit.com.
 // Handles listing-specific concerns: auto-login via RES and enlarged pagination buttons.
 // setupOldReddit() always runs first and handles styles, header, sidebar, and images.
-const setupRedditPage = () => {
+const runPostListing = () => {
     log.info('setupRedditPage: starting');
 
     // If not logged in, open the RES account switcher dropdown and click the first account.
@@ -509,21 +509,19 @@ const applyPostFilters = () => {
 };
 
 // ─── Router ───────────────────────────────────────────────────────────────────
-// www redirect is exclusive. For old.reddit.com the universal setup always runs first,
-// then the page-specific layer, then the filtering layer on listing pages.
+// Anything that isn't old.reddit.com gets redirected. For old.reddit.com the
+// universal setup always runs first, then the page-specific layer.
 
-if (location.host.startsWith('www.')) {
+if (location.host !== 'old.reddit.com') {
     redirectToOldReddit();
-} else if (location.host === 'old.reddit.com') {
-    setupOldReddit();
+} else {
+    runUniversal();
     if (/\/comments\//.test(location.pathname)) {
-        setupCommentsPage();
+        runComments();
     } else {
-        setupRedditPage();
+        runPostListing();
         applyPostFilters();
     }
-} else {
-    applyPostFilters();
 }
 
 // ─── Debug harness ────────────────────────────────────────────────────────────
@@ -539,11 +537,11 @@ if (CONFIG.debug) {
     // and optionally a console command to help inspect or trigger it manually.
     const FEATURES = [
         {
-            group: 'www.reddit.com',
+            group: 'Non-old subdomains (www, np, new, i, …)',
             items: [
                 {
                     feature: 'Redirect to old.reddit.com',
-                    url: 'https://www.reddit.com/',
+                    url: 'https://www.reddit.com/ or https://np.reddit.com/',
                     expect: 'Browser immediately lands on https://old.reddit.com/',
                 },
             ],
@@ -702,8 +700,8 @@ if (CONFIG.debug) {
         config: CONFIG,
         Post,
         redirectToOldReddit,
-        setupCommentsPage,
-        setupRedditPage,
+        setupCommentsPage: runComments,
+        setupRedditPage: runPostListing,
         applyPostFilters,
         cleanLocalStorage,
         changeNavigationButtons,
