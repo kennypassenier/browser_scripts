@@ -182,6 +182,15 @@ const cleanLocalStorage = () => {
 
 // Old Reddit's sidebar takes up a lot of horizontal space and is rarely needed.
 // This adds a "Sidebar" link to the top-right header that shows/hides it on demand.
+// RES (Reddit Enhancement Suite) adds a "show images" button to the listing header.
+// A short delay is needed because RES injects it slightly after page load.
+// Works on both the frontpage and comments page.
+const clickShowImages = async () => {
+    await timeout(100);
+    const btn = document.querySelector(".res-show-images a");
+    if (btn) btn.click();
+};
+
 // The sidebar starts hidden. The link gets a strikethrough when the sidebar is hidden
 // (strikethrough = "this thing is off"), consistent with the Filter toggle in runModernFrontpage.
 // Shared between runCommentsPage and runFrontpage.
@@ -302,6 +311,7 @@ function runCommentsPage() {
     removeParentOfAllNodes(document.querySelectorAll(".toggleChildren"));
     detectRickroll();
     setupSidebarToggle();
+    clickShowImages();
     // TODO: add custom menu items here (e.g. Reveddit/Unddit links)
 }
 
@@ -314,13 +324,6 @@ function runCommentsPage() {
 // - Auto-clicks the RES "show images" button so images expand immediately
 // - Auto-logs in using the first account in the RES account switcher, if not already logged in
 function runFrontpage() {
-    // RES (Reddit Enhancement Suite) adds a "show images" button to the listing header.
-    // A short delay is needed because RES injects it slightly after page load.
-    const clickShowImages = async () => {
-        await timeout(100);
-        document.querySelector(".res-show-images a").click();
-    };
-
     // If Reddit shows a login link (i.e. we're not logged in), open the RES account
     // switcher dropdown and click the first account to auto-login. The interval polls
     // because the RES dropdown renders asynchronously after the icon is clicked.
