@@ -3,5 +3,4 @@
 const STYLES = `.conflict,
 .supportlinks {
     display: none;
-}
-`;
+}`;

@@ -16,8 +16,8 @@ div[role=heading] {
     color: #F3F4F6;
     border: none;
 }
+
 #rso em,
 #result-stats {
     color: white;
-}
-`;
+}`;

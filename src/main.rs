@@ -222,7 +222,24 @@ fn create_project(config: &Config, root: &PathBuf) {
     println!("\nSuccess: Website '{}' setup complete.", name);
 }
 
+fn generate_all_styles(root: &PathBuf) {
+    for entry in WalkDir::new(root.join("scripts"))
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.path().file_name().map_or(false, |f| f == "styles.css"))
+    {
+        let css = fs::read_to_string(entry.path()).unwrap_or_default();
+        let generated = format!(
+            "// AUTO-GENERATED — do not edit directly. Edit styles.css instead.\n'use strict';\nconst STYLES = `{css}`;\n"
+        );
+        let out = entry.path().with_file_name("styles.generated.js");
+        fs::write(&out, generated).expect("Failed to write styles.generated.js");
+        println!("Generated: {}", out.display());
+    }
+}
+
 fn update_all(root: &PathBuf) {
+    generate_all_styles(root);
     let timestamp = Utc::now().timestamp().to_string();
     for entry in WalkDir::new(root)
         .into_iter()

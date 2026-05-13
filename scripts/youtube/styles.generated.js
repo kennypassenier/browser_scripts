@@ -2,5 +2,4 @@
 'use strict';
 const STYLES = `ytd-reel-shelf-renderer {
     display: none;
-}
-`;
+}`;
