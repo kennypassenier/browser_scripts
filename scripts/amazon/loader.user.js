@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         amazon
 // @namespace    Custom.Automation
-// @version      1778681613
+// @version      1778682582
 // @description  
 // @author       Kenny
 // @match        *://*.amazon.com.be/*
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/amazon/logic.js?v=1778681613
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/amazon/logic.js?v=1778682582
 // ==/UserScript==
