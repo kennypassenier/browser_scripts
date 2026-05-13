@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         crackingthecryptic
 // @namespace    Custom.Automation
-// @version      1778670085
+// @version      1778681613
 // @description  
 // @author       Kenny
 // @match        *://app.crackingthecryptic.com
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/crackingthecryptic/logic.js?v=1778670085
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/crackingthecryptic/logic.js?v=1778681613
 // ==/UserScript==
