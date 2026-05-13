@@ -1,11 +1,12 @@
 ﻿'use strict';
 
-// This script runs on all reddit.com subdomains.
-// - www.reddit.com  → redirected immediately to old.reddit.com
-// - old.reddit.com  → dark theme injected, sidebar hidden, auto-login via RES
-//   - /comments/ pages → comment cleanup (embed removal, rickroll detection)
-//   - all other pages  → frontpage (show-images, sidebar toggle, navigation)
-// - any other subdomain → custom filtering layer (post/author/flair/domain filters)
+// Runs on all reddit.com subdomains via Tampermonkey.
+//
+// Route map:
+//   www.reddit.com          → redirectToOldReddit() — bounces immediately to old.reddit.com
+//   old.reddit.com/comments → setupThreadPage()     — dark theme + comment thread cleanup
+//   old.reddit.com/*        → setupRedditPage()     — dark theme + sidebar + auto-login
+//   *.reddit.com            → applyPostFilters()    — personal post filter (hide/classify)
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -123,13 +124,15 @@ const withAnimation = async (el, fn) => {
 const matchesBlockList = (value, list) =>
     list.some(term => value.toLowerCase().includes(term.toLowerCase()));
 
-const generateSeparator = () => {
+const createSeparator = () => {
     const sep = document.createElement("span");
     sep.textContent = " | ";
     sep.className = "separator";
     return sep;
 };
 
+// Removes the immediate DOM parent of each node in the list.
+// Used to strip wrapper elements along with their child in one pass.
 const removeParentOfAllNodes = (nodes) => {
     nodes.forEach(node => node.parentElement.parentElement.removeChild(node.parentElement));
 };
@@ -152,9 +155,6 @@ const simplifyUserHeader = (el) => {
     el.appendChild(userlink);
     el.appendChild(accountSwitcher);
 };
-
-// Reddit wraps each post in a <div class="thing">. This reaches it from any descendant.
-const getPostElement = (el) => el.closest('.thing');
 
 // Post wraps a .thing DOM element with typed properties and action methods.
 // All querySelector calls happen once at construction time, keeping loops clean.
@@ -267,7 +267,7 @@ const setupSidebarToggle = () => {
     sidebarLink.href = "#";
     sidebarLink.className = "strikeThrough";
     sidebarLink.textContent = "Sidebar";
-    header.appendChild(generateSeparator());
+    header.appendChild(createSeparator());
     header.appendChild(sidebarLink);
 
     sidebar.style.display = "none";
@@ -283,12 +283,15 @@ const setupSidebarToggle = () => {
 
 // ─── Page functions ───────────────────────────────────────────────────────────
 
-const runRedirect = () => {
+// www.reddit.com is just a redirect shell — all customizations live on old.reddit.com.
+const redirectToOldReddit = () => {
     location.replace(location.protocol + '//old.reddit.com' + location.pathname + location.search);
 };
 
-// Cleans up a thread page on old.reddit.com.
-const runCommentsPage = () => {
+// Runs on a reddit thread page (old.reddit.com/r/*/comments/*).
+// Injects the dark theme, strips header noise, removes embedded comment previews
+// and inline child-comment toggles, flags rickroll links, and sets up the sidebar toggle.
+const setupThreadPage = () => {
     injectStyles();
     simplifyUserHeader(document.querySelector("span.user"));
     removeParentOfAllNodes(document.querySelectorAll(".embed-comment"));
@@ -306,8 +309,10 @@ const runCommentsPage = () => {
     clickShowImages();
 };
 
-// Sets up the Reddit listing page (frontpage or subreddit).
-const runListing = () => {
+// Runs on the reddit listing page (frontpage, subreddit, multireddit) on old.reddit.com.
+// Injects the dark theme, strips header noise, adds the sidebar toggle, auto-clicks
+// RES show-images, auto-logs in via RES if not logged in, and enlarges the pagination buttons.
+const setupRedditPage = () => {
     // If not logged in, open the RES account switcher dropdown and click the first account.
     const loginUser = async () => {
         const userSpan = document.querySelector("#header-bottom-right span");
@@ -325,10 +330,11 @@ const runListing = () => {
     changeNavigationButtons();
 };
 
-// Custom filtering layer for the Reddit frontpage listing.
-// Adds "Filter" and "Hide posts" buttons, classifies links by domain, filters posts
-// by title/author/flair, and persists hidden posts in localStorage (72h TTL).
-const runFrontpage = () => {
+// Runs on all non-old.reddit.com subdomains — the personal content filtering layer.
+// Adds "Filter" and "Hide posts" buttons to the header, colours external links by domain
+// (paywall/trash/fixed), and hides posts matching the title/author/flair block lists.
+// Posts marked via "Hide posts" are persisted in localStorage with a 72h TTL.
+const applyPostFilters = () => {
     if (/\/comments\//.test(location.pathname)) return;
 
     let filterIsActive = true;
@@ -347,9 +353,9 @@ const runFrontpage = () => {
 
     const addCustomMenu = () => {
         const header = document.querySelector("#header-bottom-right");
-        header.appendChild(generateSeparator());
+        header.appendChild(createSeparator());
         header.appendChild(createHeaderLink("filterToggle", "Filter"));
-        header.appendChild(generateSeparator());
+        header.appendChild(createSeparator());
         header.appendChild(createHeaderLink("hideAllButton", "Hide posts"));
     };
 
@@ -405,12 +411,13 @@ const runFrontpage = () => {
 };
 
 // ─── Router ───────────────────────────────────────────────────────────────────
+// Evaluated top-to-bottom; first matching route wins.
 
 const routes = [
-    { match: () => location.host.startsWith('www.'),                                             run: runRedirect },
-    { match: () => location.host === 'old.reddit.com' && /\/comments\//.test(location.pathname), run: runCommentsPage },
-    { match: () => location.host === 'old.reddit.com',                                           run: runListing },
-    { match: () => true,                                                                          run: runFrontpage },
+    { match: () => location.host.startsWith('www.'),                                             run: redirectToOldReddit },
+    { match: () => location.host === 'old.reddit.com' && /\/comments\//.test(location.pathname), run: setupThreadPage },
+    { match: () => location.host === 'old.reddit.com',                                           run: setupRedditPage },
+    { match: () => true,                                                                          run: applyPostFilters },
 ];
 
 routes.find(r => r.match()).run();
