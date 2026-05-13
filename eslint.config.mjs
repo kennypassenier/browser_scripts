@@ -35,6 +35,8 @@ export default [
                 GM_setValue: `readonly`,
                 GM_xmlhttpRequest: `readonly`,
                 unsafeWindow: `readonly`,
+                // modules/styles.js
+                injectStyles: `readonly`,
             },
         },
 

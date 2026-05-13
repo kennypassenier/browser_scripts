@@ -161,15 +161,7 @@ const removeParentOfAllNodes = nodes => {
   });
 };
 
-// Injects the dark theme and UI cleanup CSS. The id guard prevents double-injection.
-const injectStyles = () => {
-  if (document.getElementById(`reddit-custom-styles`)) return;
-  const style = document.createElement(`style`);
-  style.id = `reddit-custom-styles`;
-  style.textContent = STYLES;
-  document.head.appendChild(style);
-  log.info(`Styles injected`);
-};
+// injectStyles(id, css) is provided by modules/styles.js
 
 // The user span in the header contains karma counts, mail icons, and other noise.
 // We strip it down to just the username link and the RES account switcher icon.
@@ -367,7 +359,7 @@ const setupSidebarToggle = () => {
 
 // Runs on every page before any page-specific setup.
 const runUniversal = () => {
-  injectStyles();
+  injectStyles(`reddit-custom-styles`, STYLES);
   simplifyUserHeader(document.querySelector(`span.user`));
   setupSidebarToggle();
   clickShowImages();

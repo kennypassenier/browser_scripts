@@ -9,5 +9,6 @@
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/loader.user.js
 // @run-at       document-idle
 // @grant        none
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/modules/styles.js
 // @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/logic.js?v=1778682582
 // ==/UserScript==

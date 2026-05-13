@@ -173,6 +173,24 @@ fn create_project(config: &Config, root: &PathBuf) {
             .join("\n")
     };
 
+    // 6. Modules
+    let use_styles = Select::with_theme(&theme)
+        .with_prompt("Include styles module? (modules/styles.js → injectStyles)")
+        .items(&["Yes", "No"])
+        .default(0)
+        .interact()
+        .unwrap()
+        == 0;
+
+    let modules_require = if use_styles {
+        format!(
+            "// @require      https://raw.githubusercontent.com/{}/{}/refs/heads/main/modules/styles.js",
+            config.gh_user, config.gh_repo
+        )
+    } else {
+        String::new()
+    };
+
     // Processing files
     let timestamp = Utc::now().timestamp().to_string();
     let project_dir = root.join("scripts").join(&name);
@@ -188,6 +206,7 @@ fn create_project(config: &Config, root: &PathBuf) {
         .replace("{{VERSION}}", &timestamp)
         .replace("{{RUN_AT}}", run_at)
         .replace("{{GRANTS}}", &grants)
+        .replace("{{MODULES}}", &modules_require)
         .replace("{{GH_USER}}", &config.gh_user)
         .replace("{{GH_REPO}}", &config.gh_repo)
         .replace("{{GAT}}", &config.gat)
@@ -199,8 +218,13 @@ fn create_project(config: &Config, root: &PathBuf) {
 
     let logic_path = project_dir.join("logic.js");
     if !logic_path.exists() {
+        let styles_block = if use_styles {
+            "const STYLES = `\n\n`;\n\n"
+        } else {
+            ""
+        };
         let default_logic = format!(
-            "(function() {{\n    'use strict';\n    console.log('{} logic loaded');\n}})();",
+            "'use strict';\n\n{styles_block}console.log('{}  logic loaded');\n",
             name
         );
         fs::write(logic_path, default_logic).expect("Failed to write logic file");
