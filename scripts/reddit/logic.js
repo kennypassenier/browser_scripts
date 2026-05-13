@@ -171,7 +171,7 @@ class Post {
   }
   get isSubredditBlocked() {
     return matchesBlockList(this.subreddit, CONFIG.filter.subreddits.blocked)
-            && !CONFIG.filter.subreddits.allowed.includes(this.subreddit);
+      && !CONFIG.filter.subreddits.allowed.includes(this.subreddit);
   }
   get isBlocked() {
     return this.isTitleBlocked || this.isAuthorBlocked || this.isFlairBlocked;
@@ -720,3 +720,6 @@ if (CONFIG.debug) {
 
   log.info(`Debug mode active — run window._reddit.help() to see the full feature checklist.`);
 }
+
+let a = `test`;
+let test = `hello` + `fun${  a}`;

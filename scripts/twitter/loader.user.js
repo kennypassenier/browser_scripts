@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         twitter
 // @namespace    Custom.Automation
-// @version      1778693915
+// @version      1778694201
 // @description
 // @author       Kenny
 // @match        *://*.x.com/*
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/twitter/logic.js?v=1778693915
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/twitter/logic.js?v=1778694201
 // ==/UserScript==

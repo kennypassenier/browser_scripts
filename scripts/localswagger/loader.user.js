@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         localswagger
 // @namespace    Custom.Automation
-// @version      1778693915
+// @version      1778694201
 // @description
 // @author       Kenny
 // @match        *://localhost:*/swagger/*
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/localswagger/logic.js?v=1778693915
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/localswagger/logic.js?v=1778694201
 // ==/UserScript==
