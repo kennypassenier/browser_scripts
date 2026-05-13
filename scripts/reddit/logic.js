@@ -156,6 +156,78 @@ const simplifyUserHeader = (el) => {
 // Old Reddit wraps each post in a <div class="thing">. This reaches it from any descendant.
 const getPostElement = (el) => el.closest('.thing');
 
+// Post wraps a .thing DOM element with typed properties and action methods.
+// All querySelector calls happen once at construction time, keeping loops clean.
+class Post {
+    constructor(el) {
+        this.el        = el;
+        this.id        = el.dataset.fullname;
+        this.author    = el.dataset.author?.toLowerCase() ?? "";
+        this.url       = el.dataset.url ?? "";
+        this.titleLink = el.querySelector(".title > a");
+        this.title     = this.titleLink?.textContent ?? "";
+        this.flair     = el.querySelector(".flairrichtext")?.title ?? "";
+        this.subreddit = el.querySelector(".subreddit")?.textContent?.toLowerCase() ?? "";
+    }
+
+    // ── Computed properties ──────────────────────────────────────────────────
+
+    get isExternal()         { return !this.url.startsWith("/r"); }
+    get hostname()           { return this.isExternal ? new URL(this.url).hostname : null; }
+    get isTitleBlocked()     { return matchesBlockList(this.title, CONFIG.filter.titles); }
+    get isAuthorBlocked()    { return CONFIG.filter.authors.includes(this.author); }
+    get isFlairBlocked()     { return this.flair.length > 0 && matchesBlockList(this.flair, CONFIG.filter.flairs); }
+    get isSubredditBlocked() {
+        return matchesBlockList(this.subreddit, CONFIG.filter.subreddits.blocked)
+            && !CONFIG.filter.subreddits.allowed.includes(this.subreddit);
+    }
+    get isBlocked() { return this.isTitleBlocked || this.isAuthorBlocked || this.isFlairBlocked; }
+
+    // ── Actions ──────────────────────────────────────────────────────────────
+
+    hide() { this.el.style.display = "none"; }
+    show() { this.el.style.display = "block"; }
+
+    // Applies a CSS class to the title link based on its domain type.
+    // Rewrites the href to route paywall links through the removal service.
+    classify() {
+        if (!this.isExternal || !this.titleLink) return;
+        const { hostname } = this;
+        if (CONFIG.sites.fixed.includes(hostname))   this.titleLink.classList.add("fixedSite");
+        if (CONFIG.sites.trash.includes(hostname))   this.titleLink.classList.add("trashSite");
+        if (CONFIG.sites.paywall.includes(hostname)) {
+            this.titleLink.classList.add("paywall");
+            this.titleLink.href = `${CONFIG.paywallService}${this.url}`;
+        }
+    }
+
+    // Persists this post's id in the hiddenPosts localStorage list.
+    saveHidden() {
+        const list = JSON.parse(localStorage.getItem("hiddenPosts")) || [];
+        if (!list.some(e => e.postId === this.id)) {
+            list.push({ postId: this.id, timestamp: Date.now() });
+            localStorage.setItem("hiddenPosts", JSON.stringify(list));
+        }
+    }
+
+    // Returns true if this post appears in the provided hidden-posts array.
+    isHiddenIn(hiddenList) {
+        return hiddenList.some(e => e.postId === this.id);
+    }
+
+    // ── Static helpers ───────────────────────────────────────────────────────
+
+    // Returns a Post instance for every .thing in the current listing.
+    static getAll() {
+        return [...document.querySelectorAll(".thing[data-fullname]")].map(el => new Post(el));
+    }
+
+    // Returns the raw hiddenPosts array from localStorage.
+    static getHiddenList() {
+        return JSON.parse(localStorage.getItem("hiddenPosts")) || [];
+    }
+}
+
 // RES adds a "show images" button to the listing header. Clicks it the moment it appears.
 const clickShowImages = async () => {
     const btn = await waitForElement(".res-show-images a");
@@ -259,22 +331,11 @@ const runFrontpage = () => {
 const runModernFrontpage = () => {
     if (/\/comments\//.test(location.pathname)) return;
 
-    const storage = window.localStorage;
     let filterIsActive = true;
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    const isTitleClean    = (title) => !matchesBlockList(title, CONFIG.filter.titles);
-    const isFlairAllowed  = (flair) => flair.length === 0 || !matchesBlockList(flair, CONFIG.filter.flairs);
     const setStrikeThrough = (el, active) => el.classList.toggle("strikeThrough", active);
-
-    const saveHiddenPost = (postId) => {
-        const hiddenPosts = JSON.parse(storage.getItem('hiddenPosts')) || [];
-        if (!hiddenPosts.some(e => e.postId === postId)) {
-            hiddenPosts.push({ postId, timestamp: Date.now() });
-            storage.setItem('hiddenPosts', JSON.stringify(hiddenPosts));
-        }
-    };
 
     const createHeaderLink = (id, text) => {
         const a = document.createElement("a");
@@ -292,55 +353,24 @@ const runModernFrontpage = () => {
         header.appendChild(createHeaderLink("hideAllButton", "Hide posts"));
     };
 
-    // Marks external post links with CSS classes based on their domain (runs once on load).
+    // Classifies all external post links by domain type (runs once on load).
     const classifyPostLinks = () => {
-        for (const entry of document.querySelectorAll(".thing a.title")) {
-            const post = getPostElement(entry);
-            if (post.dataset.url.startsWith("/r")) continue;
-            const { hostname } = new URL(post.dataset.url);
-            const titleLink = post.querySelector(".title > a");
-            if (CONFIG.sites.fixed.includes(hostname))   titleLink.classList.add("fixedSite");
-            if (CONFIG.sites.trash.includes(hostname))   titleLink.classList.add("trashSite");
-            if (CONFIG.sites.paywall.includes(hostname)) {
-                titleLink.classList.add("paywall");
-                titleLink.href = `${CONFIG.paywallService}${post.dataset.url}`;
-            }
-        }
+        for (const post of Post.getAll()) post.classify();
     };
 
-    // Shows or hides posts based on title, author, flair, and the hidden-post list.
+    // Shows or hides posts based on their block status and the hidden-posts list.
     const filterEntries = () => {
-        const hiddenPosts = JSON.parse(storage.getItem("hiddenPosts")) || [];
-        for (const entry of document.querySelectorAll(".thing a.title")) {
-            const post = getPostElement(entry);
-            const postId = post.dataset.fullname;
-            if (!postId) continue;
-
-            if (hiddenPosts.some(e => e.postId === postId)) {
-                post.style.display = "none";
-                continue;
-            }
-
-            const titleText = entry.text;
-            if (titleText === undefined) continue;
-
-            const author = post.dataset?.author?.toLowerCase();
-            const flair  = post.querySelector(".flairrichtext")?.title ?? "";
-
-            const shouldFilter = !isTitleClean(titleText)
-                || CONFIG.filter.authors.includes(author)
-                || !isFlairAllowed(flair);
-
-            if (shouldFilter) post.style.display = filterIsActive ? "none" : "block";
+        const hiddenList = Post.getHiddenList();
+        for (const post of Post.getAll()) {
+            if (!post.id) continue;
+            if (post.isHiddenIn(hiddenList))  { post.hide(); continue; }
+            if (post.isBlocked) filterIsActive ? post.hide() : post.show();
         }
     };
 
     const filterSubreddit = () => {
-        for (const entry of document.querySelectorAll(".subreddit")) {
-            const name = entry.textContent.toLowerCase();
-            const isBlocked = matchesBlockList(name, CONFIG.filter.subreddits.blocked);
-            const isAllowed = CONFIG.filter.subreddits.allowed.includes(name);
-            if (isBlocked && !isAllowed) getPostElement(entry).style.display = "none";
+        for (const post of Post.getAll()) {
+            if (post.isSubredditBlocked) post.hide();
         }
     };
 
@@ -362,9 +392,7 @@ const runModernFrontpage = () => {
     hideAllButton.addEventListener("click", async (e) => {
         e.preventDefault();
         await withAnimation(e.target, async () => {
-            for (const btn of document.querySelectorAll(".noCtrlF[data-event-action='hide']")) {
-                saveHiddenPost(getPostElement(btn).dataset.fullname);
-            }
+            for (const post of Post.getAll()) post.saveHidden();
             filterEntries();
         });
     });
