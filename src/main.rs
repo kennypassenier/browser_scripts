@@ -234,7 +234,9 @@ fn generate_all_styles(root: &Path) {
         .filter_map(|e| e.ok())
         .filter(|e| e.path().file_name().is_some_and(|f| f == "styles.css"))
     {
-        let css = fs::read_to_string(entry.path()).unwrap_or_default().replace("\r\n", "\n");
+        let css = fs::read_to_string(entry.path())
+            .unwrap_or_default()
+            .replace("\r\n", "\n");
         let generated = format!(
             "// AUTO-GENERATED — do not edit directly. Edit styles.css instead.\n'use strict';\nconst STYLES = `{css}`;\n"
         );
