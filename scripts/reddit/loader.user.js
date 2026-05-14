@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         reddit
 // @namespace    Custom.Automation
-// @version      1778776674
+// @version      1778776745
 // @description
 // @author       Kenny
 // @match        *://*.reddit.com/*
@@ -10,6 +10,6 @@
 // @run-at       document-idle
 // @grant        none
 // @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/modules/styles.js
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/styles.generated.js?v=1778776674
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/logic.js?v=1778776674
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/styles.generated.js?v=1778776745
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/logic.js?v=1778776745
 // ==/UserScript==

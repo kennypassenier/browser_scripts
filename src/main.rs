@@ -273,7 +273,7 @@ fn update_all(root: &PathBuf) {
                 }
             })
             .collect();
-        fs::write(entry.path(), lines.join("\r\n") + "\r\n").unwrap();
+        fs::write(entry.path(), lines.join("\n") + "\n").unwrap();
     }
     Command::new("git").args(["add", "."]).status().unwrap();
     Command::new("git")
