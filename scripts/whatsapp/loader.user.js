@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         whatsapp
 // @namespace    Custom.Automation
-// @version      1778776572
+// @version      1778776661
 // @description
 // @author       Kenny
 // @match        *://api.whatsapp.com
@@ -10,5 +10,5 @@
 
 // @run-at       document-idle
 // @grant        none
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/whatsapp/logic.js?v=1778776572
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/whatsapp/logic.js?v=1778776661
 // ==/UserScript==
