@@ -2,7 +2,7 @@ use chrono::Utc;
 use dialoguer::{Input, MultiSelect, Select, theme::ColorfulTheme};
 use std::env;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use walkdir::WalkDir;
 
@@ -58,7 +58,7 @@ fn main() {
     }
 }
 
-fn create_project(config: &Config, root: &PathBuf) {
+fn create_project(config: &Config, root: &Path) {
     let theme = ColorfulTheme::default();
 
     // 1. Name
@@ -228,11 +228,11 @@ fn create_project(config: &Config, root: &PathBuf) {
     println!("\nSuccess: Website '{}' setup complete.", name);
 }
 
-fn generate_all_styles(root: &PathBuf) {
+fn generate_all_styles(root: &Path) {
     for entry in WalkDir::new(root.join("scripts"))
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| e.path().file_name().map_or(false, |f| f == "styles.css"))
+        .filter(|e| e.path().file_name().is_some_and(|f| f == "styles.css"))
     {
         let css = fs::read_to_string(entry.path()).unwrap_or_default();
         let generated = format!(
@@ -251,7 +251,7 @@ fn update_all(root: &PathBuf) {
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| {
-            e.path().extension().map_or(false, |ext| ext == "js")
+            e.path().extension().is_some_and(|ext| ext == "js")
                 && e.path().to_str().unwrap().contains(".user.js")
         })
     {

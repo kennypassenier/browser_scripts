@@ -1,11 +1,13 @@
 {
     "chat.tools.terminal.autoApprove": {
-        ".\\monkey-manager.exe": true
+        ".\\monkey-manager.exe": true,
+        "cargo clippy": true
     },
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": "explicit"
     },
     "eslint.validate": [
         "javascript"
-    ]
+    ],
+    "rust-analyzer.check.command": "clippy"
 }
