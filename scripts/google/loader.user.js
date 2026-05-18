@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         google
 // @namespace    Custom.Automation
-// @version      1779142110
+// @version      1779142170
 // @description
 // @author       Kenny
 // @match        *://www.google.com/*
@@ -13,6 +13,6 @@
 // @run-at       document-idle
 // @grant        none
 // @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/modules/styles.js
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/google/styles.generated.js?v=1779142110
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/google/logic.js?v=1779142110
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/google/styles.generated.js?v=1779142170
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/google/logic.js?v=1779142170
 // ==/UserScript==
