@@ -5,6 +5,7 @@
 // @description
 // @author       Kenny
 // @match        *://*.youtube.com/*
+// @noframes
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/loader.user.js
 // @run-at       document-idle
