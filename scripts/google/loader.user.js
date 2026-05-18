@@ -5,6 +5,7 @@
 // @description
 // @author       Kenny
 // @match        *://www.google.com/*
+// @exclude      *://www.google.com/maps*
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/google/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/google/loader.user.js
 
