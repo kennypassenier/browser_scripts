@@ -5,6 +5,7 @@
 // @description
 // @author       Kenny
 // @match        *://*.reddit.com/*
+// @noframes
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/reddit/loader.user.js
 // @run-at       document-idle

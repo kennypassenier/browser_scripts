@@ -5,6 +5,7 @@
 // @description
 // @author       Kenny
 // @match        *://sudokupad.app/*
+// @noframes
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/sudokupad/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/sudokupad/loader.user.js
 

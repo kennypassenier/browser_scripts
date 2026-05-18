@@ -5,6 +5,7 @@
 // @description
 // @author       Kenny
 // @match        *://agenda.crossuite.com
+// @noframes
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/crosssuite/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/crosssuite/loader.user.js
 

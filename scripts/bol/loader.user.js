@@ -5,6 +5,7 @@
 // @description
 // @author       Kenny
 // @match        *://*.bol.com/*
+// @noframes
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/bol/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/bol/loader.user.js
 

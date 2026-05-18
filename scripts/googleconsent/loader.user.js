@@ -5,6 +5,7 @@
 // @description
 // @author       Kenny
 // @match        *://consent.google.com
+// @noframes
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/googleconsent/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/googleconsent/loader.user.js
 

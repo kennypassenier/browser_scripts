@@ -5,6 +5,7 @@
 // @description
 // @author       Kenny
 // @match        *://app.crackingthecryptic.com
+// @noframes
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/crackingthecryptic/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/crackingthecryptic/loader.user.js
 

@@ -5,6 +5,7 @@
 // @description
 // @author       Kenny
 // @match        *://localhost:*/swagger/*
+// @noframes
 // @updateURL    https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/localswagger/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/localswagger/loader.user.js
 
