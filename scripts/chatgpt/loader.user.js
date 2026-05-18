@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatgpt
 // @namespace    Custom.Automation
-// @version      1778776745
+// @version      1779133148
 // @description
 // @author       Kenny
 // @match        *://chatgpt.com
@@ -11,6 +11,6 @@
 // @run-at       document-idle
 // @grant        none
 // @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/modules/styles.js
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/chatgpt/styles.generated.js?v=1778776745
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/chatgpt/logic.js?v=1778776745
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/chatgpt/styles.generated.js?v=1779133148
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/chatgpt/logic.js?v=1779133148
 // ==/UserScript==
