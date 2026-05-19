@@ -9,5 +9,7 @@
     "eslint.validate": [
         "javascript"
     ],
-    "rust-analyzer.check.command": "clippy"
+    "rust-analyzer.check.command": "clippy",
+    "doppler.autocomplete.enable": true,
+    "doppler.hover.enable": true
 }

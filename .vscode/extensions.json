@@ -5,8 +5,6 @@
         "vadimcn.vscode-lldb",
         // JavaScript / ESLint
         "dbaeumer.vscode-eslint",
-        // PowerShell
-        "ms-vscode.powershell",
         // Bash
         "mads-hartmann.bash-ide-vscode"
     ]
