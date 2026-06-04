@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         youtube
 // @namespace    Custom.Automation
-// @version      1780356677
+// @version      1780546762
 // @description
 // @author       Kenny
 // @match        *://*.youtube.com/*
@@ -11,6 +11,6 @@
 // @run-at       document-idle
 // @grant        none
 // @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/modules/styles.js
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/styles.generated.js?v=1780356677
-// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/logic.js?v=1780356677
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/styles.generated.js?v=1780546762
+// @require      https://raw.githubusercontent.com/kennypassenier/browser_scripts/refs/heads/main/scripts/youtube/logic.js?v=1780546762
 // ==/UserScript==

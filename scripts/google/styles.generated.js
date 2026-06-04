@@ -1,23 +1,3 @@
 // AUTO-GENERATED — do not edit directly. Edit styles.css instead.
 'use strict';
-const STYLES = `body,
-a,
-a:visited,
-cite,
-span,
-.main,
-#top_nav *,
-#appbar,
-#searchform *,
-#footcnt *,
-#wp-tabs-container,
-div[role=heading] {
-    background-color: #374151;
-    color: #F3F4F6;
-    border: none;
-}
-
-#rso em,
-#result-stats {
-    color: white;
-}`;
+const STYLES = ``;
