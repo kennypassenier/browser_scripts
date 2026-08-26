@@ -26,13 +26,20 @@ function main() {
   ];
 
 
-  // Get the query info
+  // Get the query info. Pages without a q parameter (the Google homepage, for
+  // one) have nothing to match against, so there is nothing to do here.
   let queryString = new URLSearchParams(window.location.search).get(`q`);
   console.log(`Query string: `);
   console.log(queryString);
   for (const command of commands) {
+    if (!queryString) break;
     // Commands that start with a !
     if (queryString.startsWith(`${command.name}`)) {
+      // A command without a url handles the whole query itself.
+      if (!command.url) {
+        command.execute(queryString);
+        break;
+      }
       let queryEncoded;
       // Check if it is a command that starts with a "!"
       if (queryString.startsWith(`!`)) {
@@ -44,7 +51,7 @@ function main() {
       console.log(queryEncoded);
       window.location.replace(`${command.url}${queryEncoded}`);
       break;
-    } else if (queryString.includes(command.name)) {
+    } else if (queryString.includes(command.name) && command.execute) {
       // Check if the command is anywhere else in the query string
       command.execute(queryString);
     }
@@ -76,6 +83,9 @@ function IMDBLinksToTheTop() {
   const parent = document.querySelector(`#kp-wp-tab-overview`);
   // console.log("Parent: ");
   // console.log(parent);
+
+  // Only search result pages with a knowledge panel have this container.
+  if (!parent) return;
 
   // Get all the direct children of the parent
   const children = parent.querySelectorAll(`:scope > div`);

@@ -8,7 +8,12 @@
   const url = new URL(window.location.href);
   if (!url.searchParams.has(`Referrer`) && !sessionStorage.getItem(`bol_referrer_applied`)) {
     sessionStorage.setItem(`bol_referrer_applied`, `1`);
-    const separator = window.location.search ? `&` : `?`;
-    window.location.replace(window.location.href + separator + REFERRER_PARAMS);
+    // Built through URLSearchParams so the parameters land before a #fragment
+    // instead of inside it, which produced a broken URL on any anchored page.
+    for (const pair of REFERRER_PARAMS.split(`&`)) {
+      const [key, value] = pair.split(`=`);
+      url.searchParams.set(key, value);
+    }
+    window.location.replace(url.toString());
   }
 })();

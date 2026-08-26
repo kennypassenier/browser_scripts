@@ -64,17 +64,25 @@ const log = {
 
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-// Resolves with the element immediately if already in the DOM,
-// otherwise waits for it to appear via MutationObserver.
-const waitForElement = selector => new Promise(resolve => {
+// Resolves with the element immediately if already in the DOM, otherwise waits
+// for it to appear via MutationObserver. Resolves with null after giveUpAfter:
+// an element that never shows up (RES not installed, say) otherwise left an
+// observer running over every mutation for the lifetime of the page.
+const waitForElement = (selector, giveUpAfter = 15000) => new Promise(resolve => {
   const el = document.querySelector(selector);
   if (el) {
     resolve(el); return;
   }
-  const observer = new MutationObserver(() => {
+  let observer;
+  const timer = setTimeout(() => {
+    observer.disconnect();
+    log.warn(`waitForElement: gave up on "${selector}" after ${giveUpAfter}ms`);
+    resolve(null);
+  }, giveUpAfter);
+  observer = new MutationObserver(() => {
     const el = document.querySelector(selector);
     if (el) {
-      observer.disconnect(); resolve(el);
+      clearTimeout(timer); observer.disconnect(); resolve(el);
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
@@ -241,6 +249,7 @@ class Post {
 // RES adds a "show images" button to the listing header. Clicks it the moment it appears.
 const clickShowImages = async () => {
   const btn = await waitForElement(`.res-show-images a`);
+  if (!btn) return;
   btn.click();
   log.info(`Show images clicked`);
 };
@@ -248,6 +257,7 @@ const clickShowImages = async () => {
 // Replaces the plain-text next/prev page links with large <<< / >>> arrows.
 const changeNavigationButtons = async () => {
   const parent = await waitForElement(`.nextprev`);
+  if (!parent) return;
   const next = document.querySelector(`.next-button`);
   const prev = document.querySelector(`.prev-button`);
   parent.textContent = ``;
@@ -326,7 +336,8 @@ const runUniversal = () => {
 // This is the only place in the script that references old reddit by name.
 const redirectToOldReddit = () => {
   log.info(`Redirecting ${location.host} → old.reddit.com`);
-  location.replace(`${location.protocol}//old.reddit.com${location.pathname}${location.search}`);
+  // The hash is part of the destination too — comment permalinks live in it.
+  location.replace(`${location.protocol}//old.reddit.com${location.pathname}${location.search}${location.hash}`);
 };
 
 // Runs on a comments thread (/r/*/comments/*).
@@ -368,6 +379,7 @@ const runPostListing = () => {
     }
     switcherIcon.click();
     const item = await waitForElement(`.RESHover.RESHoverDropdownList ul li`);
+    if (!item) return;
     item.click();
     log.info(`loginUser: auto-login triggered`);
   };
@@ -380,13 +392,16 @@ const runPostListing = () => {
 // The personal content filtering layer — runs on all listing pages.
 // Only activates on listing pages (frontpage and subreddits); skips comments pages,
 // user profiles, message inboxes, preferences, and any other non-listing URL.
-// user profiles, message inboxes, preferences, and any other non-listing URL.
 // Adds "Filter" and "Hide posts" buttons to the header, colours external links by domain
 // (paywall/trash/fixed), and hides posts matching the title/author/flair block lists.
 // Posts marked via "Hide posts" are persisted in localStorage with a 72h TTL.
 const applyPostFilters = () => {
-  // Only run on listing pages: the frontpage (/) or a subreddit (/r/...), but not threads.
-  const isListingPage = /^\/$|^\/r\//.test(location.pathname) && !/\/comments\//.test(location.pathname);
+  // Only run on listing pages: the frontpage (/), a frontpage sort (/hot, /new,
+  // /top, /rising, /controversial), a subreddit (/r/...) or a multireddit, but
+  // never a thread. The sorts used to fall through as "non-listing", so the
+  // filter silently did nothing on old.reddit.com/top.
+  const isListingPage = /^\/$|^\/(?:hot|new|top|rising|controversial)\/?$|^\/r\/|^\/(?:user|u)\/[^/]+\/m\//
+    .test(location.pathname) && !/\/comments\//.test(location.pathname);
   if (!isListingPage) {
     log.info(`applyPostFilters: skipping non-listing path "${location.pathname}"`); return;
   }
@@ -495,7 +510,8 @@ const applyPostFilters = () => {
   filterEntries();
   filterSubreddit();
   cleanLocalStorage();
-  changeNavigationButtons();
+  // Pagination is already rewritten by runPostListing(), which always runs
+  // first on these pages — doing it here as well ran the same rewrite twice.
   log.info(`applyPostFilters: done`);
 };
 
@@ -720,6 +736,3 @@ if (CONFIG.debug) {
 
   log.info(`Debug mode active — run window._reddit.help() to see the full feature checklist.`);
 }
-
-let a = `test`;
-let test = `hello` + `fun${a}`;

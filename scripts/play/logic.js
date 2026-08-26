@@ -80,7 +80,8 @@ async function avoidSpoilers(milliseconds) {
     if (played && parseInt(played) === 0) {
       // console.log("Geldig: " + played);
       let imageElement = item.querySelector(`.scale-image`);
-      imageElement.style.backgroundImage = ``;
+      // A carousel item can render its progress bar before its thumbnail.
+      if (imageElement) imageElement.style.backgroundImage = ``;
       // console.log(imageElement);
     }
   });

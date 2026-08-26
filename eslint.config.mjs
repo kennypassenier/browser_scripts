@@ -29,6 +29,9 @@ export default [
                 Event: `readonly`,
                 KeyboardEvent: `readonly`,
                 MouseEvent: `readonly`,
+                HTMLInputElement: `readonly`,
+                HTMLSelectElement: `readonly`,
+                HTMLTextAreaElement: `readonly`,
                 // Greasemonkey / Tampermonkey globals
                 GM_addStyle: `readonly`,
                 GM_getValue: `readonly`,

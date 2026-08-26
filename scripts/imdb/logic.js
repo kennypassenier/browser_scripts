@@ -1,14 +1,18 @@
 'use strict';
 console.log(window.location);
 
+// Returns true when it navigated away, so the caller can stop working on a page
+// that is about to be replaced.
 function removeMobileLink() {
   let { host } = window.location;
 
-  if (host.startsWith(`m.`)) {
-    host = host.substr(2);
-    const newPath = `${window.location.protocol}//${host}${window.location.pathname}`;
-    window.location = newPath;
-  }
+  if (!host.startsWith(`m.`)) return false;
+
+  host = host.substr(2);
+  // Keep the query and the hash — dropping them used to lose the page you were on.
+  const { protocol, pathname, search, hash } = window.location;
+  window.location = `${protocol}//${host}${pathname}${search}${hash}`;
+  return true;
 }
 
 function getPageNumberInfo() {
@@ -19,13 +23,22 @@ function getPageNumberInfo() {
   return [currentPage, maxPages];
 }
 
-async function waitForAndGetElement(selector) {
+// Resolves with the element, or with null after giveUpAfter — without the
+// timeout the interval kept polling for the rest of the page's life.
+async function waitForAndGetElement(selector, giveUpAfter = 15000) {
+  const startedAt = Date.now();
   return new Promise(resolve => {
     const interval = setInterval(() => {
       const element = document.querySelector(selector);
       if (element) {
         clearInterval(interval);
         resolve(element);
+        return;
+      }
+      if (Date.now() - startedAt > giveUpAfter) {
+        clearInterval(interval);
+        console.log(`Gave up waiting for ${selector}`);
+        resolve(null);
       }
     }, 250);
   });
@@ -39,7 +52,7 @@ async function clickSeeMore() {
   // Clicks the element that loads all the
   // titles for this person
   let element = await waitForAndGetElement(`.ipc-see-more__text`);
-  element.click();
+  if (element) element.click();
 }
 
 function main() {
@@ -47,7 +60,7 @@ function main() {
   // name for people
   // title for series and movies
   // mediaviewer for both of the above
-  removeMobileLink();
+  if (removeMobileLink()) return;
   if (isFromType(`mediaviewer`)) {
     console.log(`Media viewer`);
     // findPerson("Carrie-Anne Moss"); // Find a specific person by name in the photo carrousel

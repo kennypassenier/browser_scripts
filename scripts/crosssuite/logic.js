@@ -1,37 +1,47 @@
 'use strict';
-// Toggle male
+// Fills in the appointment form. The page is an Angular app, so it is polled for
+// until the form exists instead of guessing a fixed delay, and every field is
+// filled defensively: one renamed input should not abort the whole fill.
+
+const FIELDS = [
+  [`#ea-forename-inp`, `Kenny`],
+  [`#ea-surname-inp`, `Passenier`],
+  [`#initials`, `kp`],
+  [`#ea-email-inp`, `kennypassenier@gmail.com`],
+  [`#ea-birth-day-inp`, `25`],
+  [`#ea-birth-month-inp`, `09`],
+  [`#ea-birth-year-inp`, `1986`],
+  [`#nr`, `22`],
+  [`#city`, `Kampenhout`],
+  [`#ea-cellphone-inp`, `485472050`],
+  [`#comments`, ``],
+  [`input[name="addr_psc"]`, `1910`],
+  [`input[name="street"]`, `Daallaan`],
+];
+
+const MALE_RADIO = `#ea-male-rad`;
+const READY_SELECTOR = `#ea-forename-inp`;   // Last field to render is good enough as a signal
+const GIVE_UP_AFTER_MS = 30000;
+const CHECK_INTERVAL_MS = 500;
 
 function enterData() {
-  const firstName = document.querySelector(`#ea-forename-inp`);
-  const lastName = document.querySelector(`#ea-surname-inp`);
-  const initials = document.querySelector(`#initials`);
-  const email = document.querySelector(`#ea-email-inp`);
-  const day = document.querySelector(`#ea-birth-day-inp`);
-  const month = document.querySelector(`#ea-birth-month-inp`);
-  const year = document.querySelector(`#ea-birth-year-inp`);
-  const houseNumber = document.querySelector(`#nr`);
-  const city = document.querySelector(`#city`);
-  const phoneNumber = document.querySelector(`#ea-cellphone-inp`);
-  const reason = document.querySelector(`#comments`);
-  const postalCode = document.querySelector(`input[name="addr_psc"]`);
-  const street = document.querySelector(`input[name="street"]`);
-  const maleRadio = document.querySelector(`#ea-male-rad`);
-  // firstName.value = "Kenny";
-  enterInput(firstName, `Kenny`);
-  enterInput(lastName, `Passenier`);
-  enterInput(initials, `kp`);
-  enterInput(email, `kennypassenier@gmail.com`);
-  enterInput(day, `25`);
-  enterInput(month, `09`);
-  enterInput(year, `1986`);
-  enterInput(houseNumber, `22`);
-  enterInput(city, `Kampenhout`);
-  enterInput(phoneNumber, `485472050`);
-  enterInput(reason, ``);
-  enterInput(postalCode, `1910`);
-  enterInput(street, `Daallaan`);
-  // maleRadio.checked = true;
-  maleRadio.click();
+  for (const [selector, value] of FIELDS) {
+    const input = document.querySelector(selector);
+    if (!input) {
+      console.log(`crossuite: field ${selector} not found, skipping`);
+      continue;
+    }
+    enterInput(input, value);
+  }
+
+  // Toggle male
+  const maleRadio = document.querySelector(MALE_RADIO);
+  if (maleRadio) {
+    // maleRadio.checked = true;
+    maleRadio.click();
+  } else {
+    console.log(`crossuite: ${MALE_RADIO} not found, gender left untouched`);
+  }
 }
 
 function enterInput(inputElement, data) {
@@ -43,4 +53,19 @@ function enterInput(inputElement, data) {
   }));
 }
 
-setTimeout(enterData, 5000);
+function waitForForm() {
+  const startedAt = Date.now();
+  const intervalId = setInterval(() => {
+    if (document.querySelector(READY_SELECTOR)) {
+      clearInterval(intervalId);
+      enterData();
+      return;
+    }
+    if (Date.now() - startedAt > GIVE_UP_AFTER_MS) {
+      clearInterval(intervalId);
+      console.log(`crossuite: form did not appear within ${GIVE_UP_AFTER_MS / 1000}s`);
+    }
+  }, CHECK_INTERVAL_MS);
+}
+
+waitForForm();

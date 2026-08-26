@@ -8,12 +8,18 @@ if (window === window.top) { // Don't run in iframes
 
   // --- Helpers ---
 
-  function waitForElement(selector, timeOut = 100) {
+  // Resolves with the element, or with null once giveUpAfter has passed — an
+  // element that never appears used to keep this polling for the whole session.
+  function waitForElement(selector, timeOut = 100, giveUpAfter = 30000) {
+    const startedAt = Date.now();
     return new Promise(resolve => {
       const checkElement = () => {
         const element = document.querySelector(selector);
         if (element) {
           resolve(element);
+        } else if (Date.now() - startedAt > giveUpAfter) {
+          console.log(`[youtube] gave up waiting for ${selector}`);
+          resolve(null);
         } else {
           timeOut *= 1.2;
           setTimeout(() => checkElement(), timeOut);
@@ -27,6 +33,7 @@ if (window === window.top) { // Don't run in iframes
 
   async function createPiPButton() {
     const voiceInput = await waitForElement(`#voice-search-button`);
+    if (!voiceInput) return;
     const pipButton = document.createElement(`button`);
     pipButton.id = `pipButton`;
     pipButton.textContent = `PiP`;
@@ -64,10 +71,13 @@ if (window === window.top) { // Don't run in iframes
     if (inputs.length <= 1) return;
     if (inputs[0] !== `timer`) return;
 
-    setInterval(() => {
+    const intervalId = setInterval(() => {
       const firstResult = document.querySelector(`ytd-video-renderer`);
       if (!firstResult) return;
-      const link = firstResult.querySelector(`a`).href;
+      // A renderer without a link is still loading; wait for the next tick.
+      const link = firstResult.querySelector(`a`)?.href;
+      if (!link) return;
+      clearInterval(intervalId);
       window.location.replace(link);
     }, 1000);
   }
@@ -87,17 +97,26 @@ if (window === window.top) { // Don't run in iframes
     }
   }
 
-  async function getChannelName() {
+  async function getChannelName(attemptsLeft = 40) {
     const selector = `#container > #text-container > #text`;
-    const channelName = await waitForElement(selector);
-    if (channelName.length === 0) return getChannelName();
-    return channelName.textContent;
+    const element = await waitForElement(selector);
+    if (!element || attemptsLeft <= 0) return ``;
+    // The element renders before YouTube fills it in, so an empty one means
+    // "not ready yet" rather than "no channel". (This used to test .length on
+    // the element itself, which is undefined, so the retry never happened.)
+    const channelName = element.textContent.trim();
+    if (channelName.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 250));
+      return getChannelName(attemptsLeft - 1);
+    }
+    return channelName;
   }
 
   async function crackingTheCrypticProtocol() {
     const channelName = await getChannelName();
     if (channelName.trim() === `Cracking The Cryptic`) {
       const expandButton = await waitForElement(`#expand`);
+      if (!expandButton) return;
       expandButton.click();
       clickTimestampLink(`Rules`);
     }
