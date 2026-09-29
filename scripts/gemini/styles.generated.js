@@ -6,8 +6,13 @@ const STYLES = `/*
  */
 :root {
     /* Horizontal room kept free on each side of the chat column. */
-    --kp-gemini-gutter: 32px;
-    --kp-gemini-width: calc(100% - 2 * var(--kp-gemini-gutter));
+    --kp-gemini-gutter: 48px;
+}
+
+/* The gutter lives on the conversation itself, so nothing inside it can reach the edges. */
+.conversation-container {
+    box-sizing: border-box !important;
+    padding-inline: var(--kp-gemini-gutter) !important;
 }
 
 /* Gemini's own width tokens, read by several components. */
@@ -29,13 +34,13 @@ input-container {
 .response-footer,
 thinking-overlay,
 .attachment-container {
-    max-width: var(--kp-gemini-width) !important;
+    max-width: 100% !important;
 }
 
 /* Action row (copy, thumbs, ...) is offset against the old 708px column. */
 model-response message-actions {
-    max-width: var(--kp-gemini-width) !important;
-    margin-inline: calc(var(--kp-gemini-gutter) - 6px) auto !important;
+    max-width: 100% !important;
+    margin-inline: -6px auto !important;
 }
 
 /* Prompt bubble: allow it to grow with the column. */
@@ -45,7 +50,8 @@ model-response message-actions {
 
 /* Input bar lines up with the chat column. */
 .input-area-container {
-    max-width: var(--kp-gemini-width) !important;
+    /* input-container already pads 16px per side. */
+    max-width: calc(100% - 2 * (var(--kp-gemini-gutter) - 16px)) !important;
 }
 
 /*
@@ -56,6 +62,6 @@ model-response message-actions {
     max-width: none !important;
 }
 .markdown .table-block .table-content {
-    padding-inline: var(--kp-gemini-gutter) !important;
+    padding-inline: 0 !important;
 }
 `;
